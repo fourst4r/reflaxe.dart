@@ -1,0 +1,6 @@
+--define dart-output=TestUnit.dart
+# --main TestUnit
+--dce full
+--cmd dart run --enable-asserts TestUnit.dart
+
+unit

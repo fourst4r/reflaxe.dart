@@ -1,0 +1,5 @@
+-D dart
+-D Dart
+--macro nullSafety("dartcompiler")
+--macro dartcompiler.CompilerInit.Start()
+-D message.reporting=pretty

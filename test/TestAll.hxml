@@ -1,0 +1,8 @@
+--dce full
+
+--each
+
+--define dart-output=TestRandom.dart
+--main TestRandom
+--cmd dart run --enable-asserts TestRandom.dart
+

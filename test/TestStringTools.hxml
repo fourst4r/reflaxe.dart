@@ -1,0 +1,3 @@
+--define dart-output=String.dart
+--main TestStringTools
+--dce full

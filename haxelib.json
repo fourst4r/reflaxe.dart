@@ -1,0 +1,17 @@
+{
+  "name": "reflaxe.Dart",
+  "version": "0.0.1",
+  "description": "A custom Haxe target for Dart",
+  "url": "http://example.com",
+  "tags": [],
+  "dependencies": {
+    "reflaxe": "git:https://github.com/SomeRanDev/reflaxe"
+  },
+  "classPath": "src/",
+  "releasenote": "Initial release.",
+  "reflaxe": {
+    "name": "Dart",
+    "abbv": "dart",
+    "stdPaths": ["std", "std/dart/_std"]
+  }
+}
