@@ -7,7 +7,6 @@ import reflaxe.data.*;
 import haxe.macro.Type;
 import haxe.macro.Expr;
 
-import reflaxe.helpers.Context;
 using reflaxe.helpers.NameMetaHelper;
 using reflaxe.helpers.TypedExprHelper;
 using reflaxe.helpers.ModuleTypeHelper;
@@ -283,22 +282,22 @@ class DartPrinter extends Printer {
         else
             printEnumSimple(enumType, constructs);
 
-		writeln();
+        writeln();
     }
 
     public function printEnumSimple(enumType: EnumType, constructs: Array<EnumOptionData>) {
         final enumName = enumType.qualifiedName();
         writeln('enum ${enumName} {');
-		indent();
+        indent();
 
-		for (con in constructs) {
-			final fname = con.field.name;
+        for (con in constructs) {
+            final fname = con.field.name;
             write('$fname,');
-		}
+        }
 
         unindent();
         writeln();
-		writeln('}');
+        writeln('}');
     }
 
     public function printEnumADT(enumType: EnumType, constructs: Array<EnumOptionData>) {
@@ -311,8 +310,8 @@ class DartPrinter extends Printer {
         unindent();
         writeln('}');
 
-		for (con in constructs) {
-			final fname = con.field.name;
+        for (con in constructs) {
+            final fname = con.field.name;
             final index = con.field.index;
             final conName = '${enumName}_$fname';
             writeln('class $conName extends $enumName {');
@@ -328,7 +327,7 @@ class DartPrinter extends Printer {
             writeln(') : super($index);');
             unindent();
             writeln('}');
-		}
+        }
 
         writeln();
     }
