@@ -13,16 +13,26 @@ class TypeNameTools {
 		}
 	}
 
+    public static function unwrapNull(t: Type): Type {
+		return switch(t) {
+			case TAbstract(absRef, params) if(params.length == 1): {
+				final abs = absRef.get();
+				if(abs.name == "Null" && abs.pack.length == 0) {
+					unwrapNull(params[0]);
+				} else {
+					t;
+				}
+			}
+			case _: t;
+		}
+	}
+
     /** Qualified name of BaseType, including the package in the type name. **/
     public static function qualifiedName(bt:BaseType):String {
         if (bt.hasMeta(Meta.Native)) 
             return bt.getNameOrNative();
 
-        // final prefix = bt.importPrefix();
         final name = bt.getNameOrNativeName();
-
-        // if (prefix != null)
-            // return prefix + name;
 
         return bt.pack.concat([name]).join("_");
     }

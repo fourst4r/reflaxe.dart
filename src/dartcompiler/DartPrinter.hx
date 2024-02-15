@@ -63,7 +63,7 @@ class DartPrinter extends Printer {
     public function printType(type:Type, qualified:Bool = true, once:Bool = false) {
         // Handle nullables
         if (type.isNull()) {
-            printPNameOrType(type = type.unwrapNullType());
+            printPNameOrType(type = type.unwrapNull());
             if (!type.isDynamic())
                 write("?");
             return;
@@ -95,7 +95,7 @@ class DartPrinter extends Printer {
                     // so that $HxAnon field accesses work
                     write('dynamic');
                 } else {
-                    write('/*ttype*/');
+                    // write('/*ttype*/');
                     write(t.qualifiedName());
                     printTypeParams(params);
                 }
@@ -255,7 +255,7 @@ class DartPrinter extends Printer {
 
     public function printAbstract(abstractType:AbstractType) {
         final className = abstractType.qualifiedName();
-         
+        writeln('// meta=${abstractType.meta.get()}');
         write('class $className');
         if (abstractType.params.length > 0) {
             write('<');
@@ -388,18 +388,20 @@ class DartPrinter extends Printer {
                 write(']');
             case TBinop(op, e1, e2):
                 printBinop(op, e1, e2);
-            case TField(e, FStatic(c,cf)):
+            case TField(e, FStatic(_.get() => c,cf)):
+
                 final cf = cf.get();
                 final fname = cf.getNameOrNative();
                 if (cf.hasMeta(":native")) {
                     write(fname);
                 } else {
                     // TODO: figure out why this works for Class<T>, but compileExpression does not...
-                    write(c.get().qualifiedName());
+                    write(c.qualifiedName());
                     // _compiler.compileExpression(e);
                     write('.${cf.name}');
                 }
             case TField(e, FInstance(_,_,cf)|FClosure(_,cf)): 
+
                 final cf = cf.get();
                 final fname = cf.getNameOrNative();
                 if (cf.hasMeta(":native")) {
@@ -411,7 +413,7 @@ class DartPrinter extends Printer {
                     write('.${cf.getNameOrNativeName()}');
                 }
             case TField(e, FAnon(_.get() => cf)):
-
+                
                 final fname = cf.getNameOrNative();
                 if (cf.hasMeta(":native")) {
                     write(fname);
@@ -423,6 +425,7 @@ class DartPrinter extends Printer {
                 }
 
             case TField(e, FDynamic(s)):
+                
                 _compiler.compileExpression(e);
                 write('.' + s);
             case TField(e, FEnum(_.get() => en, ef)):
