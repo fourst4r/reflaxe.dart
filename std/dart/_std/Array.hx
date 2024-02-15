@@ -11,11 +11,36 @@ package;
 
 import haxe.iterators.ArrayKeyValueIterator;
 
-@:coreApi
+@:access(Array)
+private class ArrayImpl {
+	public static function push<T>(a:Array<T>, value:T):Int {
+		a._a.add(value);
+		return a.length = a._a.length;
+	}
+
+	public static function pop<T>(a:Array<T>):Null<T> {
+		final result = a.length > 0 ? a._a.removeLast() : null;
+		a.length = a._a.length;
+		return result;
+	}
+
+	public static function shift<T>(a:Array<T>):Null<T> {
+		final result = a._a.removeAt(0);
+		a.length = a._a.length;
+		return result;
+	}
+
+	public static function splice<T>(a:Array<T>, pos:Int, len:Int):Array<T> {
+        final result = a._a.sublist(pos, pos+len);
+        a._a.removeRange(pos, pos+len);
+		a.length = a._a.length;
+        return Array.fromList(result);
+    }
+}
+
 final class Array<T> implements ArrayAccess<T> {
 	
-    @:nativeName("_a.length")
-	public extern var length(default, null):Int;
+	public var length(default, null):Int = 0;
 
     var _a:dart.core.List<T>;
 
@@ -29,6 +54,7 @@ final class Array<T> implements ArrayAccess<T> {
 		if (i >= length)
 			_a.length = i+1;
         _a[i] = value;
+		length = _a.length;
     }
 
 	public function new() {
@@ -41,39 +67,35 @@ final class Array<T> implements ArrayAccess<T> {
     static function fromList<T>(list:dart.core.List<T>):Array<T> {
         final a = new Array();
         a._a = list;
+		a.length = list.length;
         return a;
     }
 
 	public function concat(a:Array<T>):Array<T>
         return fromList(this._a.concat(a._a));
 
-    @:nativeName("_a.join")
-	public extern function join(sep:String):String;
+	public inline function join(sep:String):String
+		return _a.join(sep);
 
 	public inline function pop():Null<T>
-        return length > 0 ? _a.removeLast() : null;
+        return ArrayImpl.pop(this);
 
-	public inline function push(x:T):Int {
-        _a.add(x);
-        return length;
-    }
+	public inline function push(x:T):Int
+        return ArrayImpl.push(this, x);
 
-    public function reverse():Void
+    public inline function reverse():Void
         _a = _a.reversed.toList();
     
-    @:nativeFunctionCode("{this}._a.removeAt(0)")
-	public extern function shift():Null<T>;
-    // @:nativeName("sublist")
+	public inline function shift():Null<T>
+		return ArrayImpl.shift(this);
+
 	public inline function slice(pos:Int, ?end:Int):Array<T>
         return fromList(_a.sublist(pos, end));
 
 	@:nativeName("_a.sort") public extern function sort(f:T->T->Int):Void;
 
-	public function splice(pos:Int, len:Int):Array<T> {
-        final result = _a.sublist(pos, pos+len);
-        _a.removeRange(pos, pos+len);
-        return fromList(result);
-    }
+	public function splice(pos:Int, len:Int):Array<T>
+        return ArrayImpl.splice(this, pos, len);
 	
     public inline function toString():String
 		return untyped _a.toString();

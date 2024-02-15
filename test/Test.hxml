@@ -1,8 +1,18 @@
 
 --dce full
-
---each
 --define analyzer-optimize
---define dart-output=TestFloat.dart
---main TestFloat
---cmd dart run --enable-asserts TestFloat.dart
+
+# --each
+# --main TestFloat
+# --define dart-output=TestFloat.dart
+# --cmd dart run --enable-asserts TestFloat.dart
+
+# --next
+# --main TestIntIterator
+# --define dart-output=TestIntIterator.dart
+# --cmd dart run --enable-asserts TestIntIterator.dart
+
+# --next
+--main TestAnonFieldAccess
+--define dart-output=TestAnonFieldAccess.dart
+--cmd dart run --enable-asserts TestAnonFieldAccess.dart

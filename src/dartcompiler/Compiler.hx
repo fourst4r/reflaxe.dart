@@ -36,14 +36,6 @@ class Compiler extends GenericCompiler<DartPrinter, DartPrinter, DartPrinter, Da
         super();
     }
 
-    override function onCompileEnd() {
-
-            // _printer.clear();
-            // _printer.printMain();
-            // setExtraFile("main.dart", _printer.toString());
-            trace("outputDir="+output.outputDir);
-    }
-
     function mkPrinter() {
         return new DartPrinter(this, "  ", "\n");
     }
@@ -55,10 +47,12 @@ class Compiler extends GenericCompiler<DartPrinter, DartPrinter, DartPrinter, Da
 
         if (typeUsage != null) {
             _printer.writeln('// TYPE USAGE FOR ${mt.getCommonData().qualifiedName()}');
+            _printer.writeln('// name=${mt.getCommonData().name}');
             for (k => v in typeUsage) {
                 for (m in v) {
                     switch (m) {
                         case EType(t): 
+                            // t.
                             //_printer.printType(t);
                         case EModuleType(mt): 
 
@@ -76,10 +70,12 @@ class Compiler extends GenericCompiler<DartPrinter, DartPrinter, DartPrinter, Da
                                 native = native.replace(".", "_");
                                 _imports.set(pkg, native);
 
-                                if (!classType.hasMeta(Meta.TopLevel))
-                                    native += "." + classType.getNameOrNativeName();
+                                
 
                             }
+
+                            if (!classType.hasMeta(Meta.TopLevel))
+                                native += "." + classType.getNameOrNativeName();
 
                             classType.meta.add(Meta.Native, [macro $v{native}], classType.pos);
                             trace('$og => $native');
@@ -125,10 +121,16 @@ class Compiler extends GenericCompiler<DartPrinter, DartPrinter, DartPrinter, Da
         return _printer;
     }
 
-    // public override function compileAbstractImpl(abstractType: AbstractType): Null<DartPrinter> {
-    // 	_printer.printAbstract(abstractType);
-    // 	return _printer;
-    // }
+    public override function compileAbstractImpl(abstractType: AbstractType): Null<DartPrinter> {
+        if (abstractType.isExtern && !abstractType.hasMeta(Meta.Native)) {
+            // give extern abstracts a good name, not the haxe impl nonsense
+            abstractType.meta.add(Meta.Native, [macro $v{abstractType.name}], abstractType.pos);
+        }
+        if (!abstractType.hasMeta(":coreType")) {
+    	    _printer.printAbstract(abstractType);
+        }
+    	return _printer;
+    }
 
     /**
         This is the final required function.
