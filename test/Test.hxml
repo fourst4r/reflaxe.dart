@@ -13,6 +13,11 @@
 # --cmd dart run --enable-asserts TestIntIterator.dart
 
 # --next
---main TestAnonFieldAccess
---define dart-output=TestAnonFieldAccess.dart
---cmd dart run --enable-asserts TestAnonFieldAccess.dart
+# --main TestAnonFieldAccess
+# --define dart-output=TestAnonFieldAccess.dart
+# --cmd dart run --enable-asserts TestAnonFieldAccess.dart
+
+# --next
+--main TestType
+--define dart-output=TestType.dart
+--cmd dart run --enable-asserts TestType.dart

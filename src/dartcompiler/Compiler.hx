@@ -110,8 +110,11 @@ class Compiler extends GenericCompiler<DartPrinter, DartPrinter, DartPrinter, Da
 
     public function compileClassImpl(classType: ClassType, varFields: Array<ClassVarData>, funcFields: Array<ClassFuncData>): Null<DartPrinter> {
         
-        final cd = new LateSuper().filterClass({classType: classType, varFields: varFields, funcFields: funcFields});
-        _printer.printClass(cd.classType, cd.varFields, cd.funcFields);
+        var cls = {classType: classType, varFields: varFields, funcFields: funcFields};
+        cls = new LateSuper().filterClass(cls);
+        cls = new Reflector().filterClass(cls);
+
+        _printer.printClass(cls.classType, cls.varFields, cls.funcFields);
         
         return _printer;
     }

@@ -81,14 +81,19 @@ class DartPrinter extends Printer {
                 // write('/*tinst*/');
                 write(t.qualifiedName());
                 printTypeParams(params);
+            case TAbstract(_.get() => t = {name:"EnumValue", pack:[]}, _):
+                write('$$HxEnum');
+            case TAbstract(_.get() => t = {name:"Class"|"Enum", pack:[]}, params):
+                write('Type');
             case TAbstract(_.get() => t, params):
                 // write('/*tabstract*/');
-                if (!once)
-                    printType(t.type.getUnderlyingType(), qualified, true);
-                else {
+                // trace(type);
+                // if (!once)
+                //     printType(t.type.getUnderlyingType(), qualified, true);
+                // else {
                     write(t.qualifiedName());
                     printTypeParams(params);
-                }
+                // }
             case TDynamic(t): write('dynamic');
             case TType(_.get() => t, params):
                 if (t.type.isAnonStruct()) {
@@ -192,6 +197,7 @@ class DartPrinter extends Printer {
         final params = funcField.field.params;
         final initers = funcField.field.meta.extract(Meta.Initializer);
         final isOverride = funcField.classType.overrides.exists(f -> f.get().name == funcField.field.name);
+        final hasOptional = args.exists(a -> a.opt);
         
         if (isDummyCtor) {
             writeln('$className.$fieldName();');
@@ -220,12 +226,20 @@ class DartPrinter extends Printer {
         }
 
         write('(');
+        var hasOpt = false;
         list(args, a -> {
-            if (a.opt) write('[');
+            if (a.opt && !hasOpt) {
+                hasOpt = true;
+                write('[');
+            }
             printPNameOrType(a.type);
             write(' ${a.name}');
-            if (a.opt) write(']');
+            if (a.expr != null) {
+                write('=');
+                _compiler.compileExpression(a.expr);
+            }
         }, ', ');
+        if (hasOpt) write(']');
         write(') ');
 
         if (initers.length > 0) {
@@ -254,6 +268,10 @@ class DartPrinter extends Printer {
     }
 
     public function printAbstract(abstractType:AbstractType) {
+        if (abstractType.isExtern) {
+            return;
+        }
+
         final className = abstractType.qualifiedName();
         writeln('// meta=${abstractType.meta.get()}');
         write('class $className');
@@ -360,6 +378,7 @@ class DartPrinter extends Printer {
             s = StringTools.replace(s, '\r', '\\r');
             s = StringTools.replace(s, "'", "\\'");
             s = StringTools.replace(s, '"', '\\"');
+            s = StringTools.replace(s, "$", "\\$");
             '\'$s\'';
         }
         case TThis: 'this';

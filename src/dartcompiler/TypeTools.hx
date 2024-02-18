@@ -13,6 +13,13 @@ class TypeNameTools {
 		}
 	}
 
+    public static function extractFunctionBody(e:TypedExpr):TypedExpr {
+        return switch (e.expr) {
+            case TFunction(tfunc): tfunc.expr;
+            default: throw "not a function";
+        }
+    }
+
     public static function unwrapNull(t: Type): Type {
 		return switch(t) {
 			case TAbstract(absRef, params) if(params.length == 1): {

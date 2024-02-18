@@ -29,7 +29,9 @@ class Math {
     static inline function floor(v:Float):Int return untyped __dart__("{0}.floor()", v);
     static inline function ceil(v:Float):Int return untyped __dart__("{0}.ceil()", v);
 
-    extern static function random():Float; // impl
+    static function random():Float return _rand.nextDouble();
+    private static var _rand = new dart.math.Random();
+
 
     static inline function ffloor(v:Float):Float return untyped __dart__("{0}.floorToDouble()", v);
     static inline function fceil(v:Float):Float return untyped __dart__("{0}.ceilToDouble()", v);
