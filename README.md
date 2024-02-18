@@ -1,8 +1,8 @@
 # reflaxe.dart
 
-Progress (checked when all tests pass):
+Implementation Progress (checked when all tests pass):
 
-Language Implemented
+Language
 - [ ] Class
 - [ ] Anon Struct
 - [ ] Enum
@@ -12,7 +12,7 @@ Language Implemented
 - [x] Null safety
 - [x] Imports
 
-Stdlib Implemented
+Stdlib
 - [ ] Array
 - [ ] Class<T> 
 - [ ] Date
@@ -28,5 +28,5 @@ Stdlib Implemented
 - [ ] Sys
 - [ ] Type
 
-Features Implemented
+Features
 - [ ] Auto extern generation
