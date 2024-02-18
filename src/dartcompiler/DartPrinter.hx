@@ -400,7 +400,7 @@ class DartPrinter extends Printer {
             case TConst(toLiteral(_) => s): write(s);
             case TLocal(v): 
                 write(_compiler.compileVarName(v.name));
-            case TArray(e1, e2): 
+            case TArray(e1, e2):
                 _compiler.compileExpression(e1);
                 write('[');
                 _compiler.compileExpression(e2);
@@ -507,7 +507,14 @@ class DartPrinter extends Printer {
 
                 write('}) as dynamic');
             case TArrayDecl(el):
-                write('Array.fromList([');
+                final t = expr.t.unwrapArrayType();
+                write('Array.fromList(');
+                if (t?.isDynamic() == false) {
+                    write('<');
+                    printPNameOrType(t);
+                    write('>');
+                }
+                write('[');
                 list(el, _compiler.compileExpression.bind(_, topLevel), ', ');
                 write('])');
             case TCall(e, el):
@@ -526,7 +533,7 @@ class DartPrinter extends Printer {
                     if (e.t.isNull())
                         write('!');
 
-                    final expectedArgTypes = e.getClassField(true)?.type?.getTFunArgs();
+                    final expectedArgTypes = e.t.getTFunArgs();
                     var n = 0;
                     write('(');
                     list(el, e -> {
@@ -670,7 +677,6 @@ class DartPrinter extends Printer {
                 write('}');
                 for (c in catches) {
                     write(' catch (');
-                    // cx(c.v.t);
                     writeln(' ${c.v.name}) {');
                     _compiler.compileExpression(c.expr);
                     write('}');
