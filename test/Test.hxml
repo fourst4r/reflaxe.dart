@@ -23,6 +23,16 @@
 # --cmd dart run --enable-asserts TestType.dart
 
 # --next
---main TestMath
---define dart-output=TestMath.dart
---cmd dart run --enable-asserts TestMath.dart
+# --main TestMath
+# --define dart-output=TestMath.dart
+# --cmd dart run --enable-asserts TestMath.dart
+
+# --next
+# --main TestStringTools
+# --define dart-output=TestStringTools.dart
+# --cmd dart run --enable-asserts TestStringTools.dart
+
+# --next
+--main TestArray
+--define dart-output=TestArray.dart
+--cmd dart run --enable-asserts TestArray.dart

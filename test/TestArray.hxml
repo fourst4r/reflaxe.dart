@@ -1,4 +1,0 @@
---define dart-output=TestArray.dart
---main TestArray
---dce full
---cmd dart run --enable-asserts TestArray.dart

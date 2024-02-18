@@ -45,13 +45,6 @@ class Printer {
             _buf.add(_indent);
     }
 
-    public function line(s:String = "") {
-        tab();
-        _buf.add(s);
-        newline();
-        return this;
-    }
-
     public inline function clear() {
         _level = 0;
         _buf = new StringBuf();

@@ -1,7 +1,5 @@
 
-
-@:native("assert")
-extern function assert(cond:Bool):Void;
+import dart.Lib.assert;
 
 function aeq(a, b) {
     for (i in 0...a.length) {

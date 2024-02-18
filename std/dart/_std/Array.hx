@@ -25,6 +25,8 @@ private class ArrayImpl {
 	}
 
 	public static function shift<T>(a:Array<T>):Null<T> {
+		if (a.length == 0)
+			return null;
 		final result = a._a.removeAt(0);
 		a.length = a._a.length;
 		return result;
@@ -36,6 +38,10 @@ private class ArrayImpl {
 		a.length = a._a.length;
         return Array.fromList(result);
     }
+
+	public static function slice<T>(pos:Int, ?end:Int):Array<T> {
+		return Array.fromList(_a.sublist(pos, end));
+	}
 }
 
 final class Array<T> implements ArrayAccess<T> {
@@ -90,7 +96,7 @@ final class Array<T> implements ArrayAccess<T> {
 		return ArrayImpl.shift(this);
 
 	public inline function slice(pos:Int, ?end:Int):Array<T>
-        return fromList(_a.sublist(pos, end));
+        return ArrayImpl.slice(pos, end);
 
 	@:nativeName("_a.sort") public extern function sort(f:T->T->Int):Void;
 
