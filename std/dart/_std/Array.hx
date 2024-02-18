@@ -121,7 +121,7 @@ final class Array<T> implements ArrayAccess<T> {
 
     @:nativeName("_a.sort") public extern function sort(f:T->T->Int):Void;
 
-    public function splice(pos:Int, len:Int):Array<T>
+    public inline function splice(pos:Int, len:Int):Array<T>
         return ArrayImpl.splice(this, pos, len);
     
     public inline function toString():String
@@ -141,21 +141,10 @@ final class Array<T> implements ArrayAccess<T> {
         return fromList(untyped __dart__("[...{0}._a]", this));
     }
 
-    
-    // public inline function iterator() {
-
-    // }
-
-    /**
-        Returns an iterator of the Array values.
-    **/
     @:runtime public inline function iterator():haxe.iterators.ArrayIterator<T> {
         return new haxe.iterators.ArrayIterator(this);
     }
 
-    /**
-        Returns an iterator of the Array indices and values.
-    **/
     @:pure @:runtime public inline function keyValueIterator() : ArrayKeyValueIterator<T> {
         return new ArrayKeyValueIterator(this);
     }
