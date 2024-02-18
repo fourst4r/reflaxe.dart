@@ -7,6 +7,9 @@ import reflaxe.helpers.Context;
 import haxe.macro.Type;
 import haxe.macro.Expr;
 
+/**
+    Helper class to make building class fields less painful.
+**/
 class ClassFieldBuilder {
     var _name:String;
     var _kind:FieldKind;
