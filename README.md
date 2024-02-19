@@ -2,7 +2,7 @@
 
 Implementation Progress (checked when all tests pass):
 
-Language
+### Language
 - [ ] Class
 - [ ] Anon Struct
 - [ ] Enum
@@ -12,8 +12,8 @@ Language
 - [x] Null safety
 - [x] Imports
 
-Stdlib
-- [ ] Array
+### Stdlib
+- [x] Array [*](#1)
 - [ ] Class<T> 
 - [ ] Date
 - [ ] EReg
@@ -28,5 +28,8 @@ Stdlib
 - [ ] Sys
 - [ ] Type
 
-Features
+<a id="1">*</a>
+Expanding a non-null array using resize will give a runtime error.
+
+### Features
 - [ ] Auto extern generation

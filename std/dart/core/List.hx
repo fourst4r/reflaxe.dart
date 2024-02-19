@@ -11,6 +11,8 @@ extern class List<E> implements ArrayAccess<E> implements dart.core.Iterable<E> 
         return untyped __dart__("({0} + {1})", this, l);
     function fillRange(start:Int, end:Int, ?fillValue:E):Void;
     function indexOf(element:E, start:Int = 0):Int;
+    function insert(index:Int, element:E):Void;
+    function lastIndexOf(element:E, ?start:Int):Int;
     function remove(value:Dynamic):Bool;
     function removeAt(index:Int):Dynamic;
     function removeLast():E;

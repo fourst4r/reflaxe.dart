@@ -1,14 +1,5 @@
 package;
 
-
-/**
-    An Array is a storage for values. You can access it using indexes or
-    with its API.
-
-    @see https://haxe.org/manual/std-Array.html
-    @see https://haxe.org/manual/lf-array-comprehension.html
-**/
-
 import haxe.iterators.ArrayKeyValueIterator;
 
 @:access(Array)
@@ -63,6 +54,61 @@ private class ArrayImpl {
             return [];
         return Array.fromList(a._a.sublist(pos, end));
     }
+
+    public static function indexOf<T>(a:Array<T>, x:T, ?fromIndex:Int):Int {
+        var start:Int;
+        if (fromIndex != null) {
+            start = fromIndex;
+            if (start < 0)
+                start += a.length;
+            if (start < 0)
+                start = 0;
+            else if (start >= a.length)
+                return -1;
+        } else {
+            start = 0;
+        }
+        return a._a.indexOf(x, start);
+    }
+
+    public static function lastIndexOf<T>(a:Array<T>, x:T, ?fromIndex:Int):Int {
+        var start:Int;
+        if (fromIndex != null) {
+            start = fromIndex;
+            if (start < 0)
+                start += a.length;
+            if (start >= a.length)
+                start = a.length-1;
+        } else {
+            start = a.length-1;
+        }
+        if (start < 0)
+            return -1;
+        return a._a.lastIndexOf(x, start);
+    }
+
+    public static function insert<T>(a:Array<T>, pos:Int, x:T):Void {
+        if (pos > a.length)
+            pos = a.length;
+        else {
+            if (pos < 0)
+                pos += a.length;
+            if (pos < 0)
+                pos = 0;
+        }
+        a._a.insert(pos, x);
+        a.length = a._a.length;
+    }
+
+    public static function resize<T>(a:Array<T>, len:Int):Void {
+        a.length = a._a.length = len;
+    }
+
+    public static function remove<T>(a:Array<T>, x:T):Bool {
+        final result = a._a.remove(x);
+        a.length = a._a.length;
+        return result;
+    }
 }
 
 final class Array<T> implements ArrayAccess<T> {
@@ -87,9 +133,6 @@ final class Array<T> implements ArrayAccess<T> {
     public function new() {
         _a = untyped __dart__("[]");
     }
-
-    // @:native("Array.blank")
-    // static inline function blank<T>():Array<T> {}
 
     static function fromList<T>(list:dart.core.List<T>):Array<T> {
         final a = new Array();
@@ -126,16 +169,24 @@ final class Array<T> implements ArrayAccess<T> {
     
     public inline function toString():String
         return untyped _a.toString();
-    @:nativeFunctionCode("{this}._a.insert(0, {arg0})")
-    public extern function unshift(x:T):Void;
-    @:nativeName("_a.insert") public extern function insert(pos:Int, x:T):Void;
-    @:nativeName("_a.remove") public extern function remove(x:T):Bool;
+
+    public inline function unshift(x:T):Void
+        return _a.insert(0, x);
+
+    public inline function insert(pos:Int, x:T):Void
+        ArrayImpl.insert(this, pos, x);
+    
+    public inline function remove(x:T):Bool
+        return ArrayImpl.remove(this, x);
 
     @:pure public inline function contains( x : T ) : Bool
         return _a.contains(x);
     
-    @:nativeName("_a.indexOf") public extern function indexOf(x:T, ?fromIndex:Int):Int;
-    @:nativeName("_a.lastIndexOf") public extern function lastIndexOf(x:T, ?fromIndex:Int):Int;
+    public inline function indexOf(x:T, ?fromIndex:Int):Int
+        return ArrayImpl.indexOf(this, x, fromIndex);
+
+    public inline function lastIndexOf(x:T, ?fromIndex:Int):Int
+        return ArrayImpl.lastIndexOf(this, x, fromIndex);
 
     public function copy():Array<T> {
         return fromList(untyped __dart__("[...{0}._a]", this));
@@ -149,153 +200,14 @@ final class Array<T> implements ArrayAccess<T> {
         return new ArrayKeyValueIterator(this);
     }
 
-    /**
-        Creates a new Array by applying function `f` to all elements of `this`.
-
-        The order of elements is preserved.
-
-        If `f` is null, the result is unspecified.
-    **/
     @:runtime public inline function map<S>(f:T->S):Array<S> {
         return [for (v in this) f(v)];
     }
 
-    /**
-        Returns an Array containing those elements of `this` for which `f`
-        returned true.
-
-        The individual elements are not duplicated and retain their identity.
-
-        If `f` is null, the result is unspecified.
-    **/
     @:runtime public inline function filter(f:T->Bool):Array<T> {
         return [for (v in this) if (f(v)) v];
     }
 
-    /**
-        Set the length of the Array.
-
-        If `len` is shorter than the array's current size, the last
-        `length - len` elements will be removed. If `len` is longer, the Array
-        will be extended, with new elements set to a target-specific default
-        value:
-
-        - always null on dynamic targets
-        - 0, 0.0 or false for Int, Float and Bool respectively on static targets
-        - null for other types on static targets
-    **/
-    @:nativeFunctionCode("{this}._a.length = {arg0}")
-    public extern function resize(len:Int):Void;
+    public inline function resize(len:Int):Void
+        ArrayImpl.resize(this, len);
 }
-
-/**
-    An Array is a storage for values. You can access it using indexes or
-    with its API.
-
-    @see https://haxe.org/manual/std-Array.html
-    @see https://haxe.org/manual/lf-array-comprehension.html
-**/
-
-// import haxe.iterators.ArrayKeyValueIterator;
-
-// @:coreApi
-// @:native("List")
-// extern class Array<T> {
-    
-// 	var length(default, null):Int;
-
-// 	@:native("[]")
-// 	function new();
-
-//     @:nativeFunctionCode("({this} + {arg0})")
-// 	inline function concat(a:Array<T>):Array<T>
-// 		return untyped __dart__("({1} + {1})", this, a);
-
-// 	function join(sep:String):String;
-
-// 	inline function pop():Null<T>
-//         return length > 0 ? untyped this.removeLast() : null;
-
-// 	inline function push(x:T):Int {
-//         untyped this.add(x);
-//         return length;
-//     }
-
-//     @:nativeFunctionCode("{this} = {this}.reversed.toList()")
-// 	function reverse():Void;
-// 	inline function shift():Null<T>
-// 		return untyped this.removeAt(0);
-//     @:nativeName("sublist")
-// 	function slice(pos:Int, ?end:Int):Array<T>;
-// 	function sort(f:T->T->Int):Void;
-
-// 	inline function splice(pos:Int, len:Int):Array<T> {
-//         final result = slice(pos, pos+len);
-//         untyped this.removeRange(pos, pos+len);
-//         return result;
-//     }
-    
-//     function toString():String;
-//     @:nativeFunctionCode("{this}.insert(0, {arg0})")
-// 	function unshift(x:T):Void;
-// 	function insert(pos:Int, x:T):Void;
-// 	function remove(x:T):Bool;
-// 	@:pure function contains( x : T ) : Bool;
-// 	function indexOf(x:T, ?fromIndex:Int):Int;
-// 	function lastIndexOf(x:T, ?fromIndex:Int):Int;
-//     @:nativeFunctionCode("[...{this}]")
-// 	function copy():Array<T>;
-
-// 	/**
-// 		Returns an iterator of the Array values.
-// 	**/
-//     @:nativeName("hxiterator")
-// 	@:runtime inline function iterator():haxe.iterators.ArrayIterator<T> {
-// 		return new haxe.iterators.ArrayIterator(this);
-// 	}
-
-// 	/**
-// 		Returns an iterator of the Array indices and values.
-// 	**/
-// 	@:pure @:runtime inline function keyValueIterator() : ArrayKeyValueIterator<T> {
-// 		return new ArrayKeyValueIterator(this);
-// 	}
-
-// 	/**
-// 		Creates a new Array by applying function `f` to all elements of `this`.
-
-// 		The order of elements is preserved.
-
-// 		If `f` is null, the result is unspecified.
-// 	**/
-// 	@:runtime inline function map<S>(f:T->S):Array<S> {
-// 		return [for (v in this) f(v)];
-// 	}
-
-// 	/**
-// 		Returns an Array containing those elements of `this` for which `f`
-// 		returned true.
-
-// 		The individual elements are not duplicated and retain their identity.
-
-// 		If `f` is null, the result is unspecified.
-// 	**/
-// 	@:runtime inline function filter(f:T->Bool):Array<T> {
-// 		return [for (v in this) if (f(v)) v];
-// 	}
-
-// 	/**
-// 		Set the length of the Array.
-
-// 		If `len` is shorter than the array's current size, the last
-// 		`length - len` elements will be removed. If `len` is longer, the Array
-// 		will be extended, with new elements set to a target-specific default
-// 		value:
-
-// 		- always null on dynamic targets
-// 		- 0, 0.0 or false for Int, Float and Bool respectively on static targets
-// 		- null for other types on static targets
-// 	**/
-//     @:nativeFunctionCode("{this}.length = {arg0}")
-// 	function resize(len:Int):Void;
-// }
