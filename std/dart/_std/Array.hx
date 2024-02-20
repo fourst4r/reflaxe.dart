@@ -119,6 +119,9 @@ final class Array<T> implements ArrayAccess<T> {
 
     @:nativeName("operator []")
     function opGetIndex(i:Int):T {
+        // Wait until https://github.com/HaxeFoundation/haxe/issues/11585 is fixed
+        // if (i < 0 || i >= length)
+        //     return null;
         return _a[i];
     }
 

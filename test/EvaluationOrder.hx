@@ -70,7 +70,7 @@ function main() {
     assert(end() == "1_2_3_4");
 
     var end = begin();
-    assert((a() + b()) >= 99 && (c() + d()) >= 0);
+    assert(((a() + b()) >= 99 && (c() + d()) >= 0) == false);
     assert(end() == "1_2");
 
     var end = begin();
@@ -78,11 +78,11 @@ function main() {
     assert(end() == "1_2_3_4_5_6");
 
     var end = begin();
-    assert((a() + b()) >= 99 && (c() + d()) >= 0 && (e() + f()) >= 0);
+    assert(((a() + b()) >= 99 && (c() + d()) >= 0 && (e() + f()) >= 0) == false);
     assert(end() == "1_2");
 
     var end = begin();
-    assert((a() + b()) >= 0 && (c() + d()) >= 99 && (e() + f()) >= 0);
+    assert(((a() + b()) >= 0 && (c() + d()) >= 99 && (e() + f()) >= 0) == false);
     assert(end() == "1_2_3_4");
 
     // ||
@@ -117,9 +117,13 @@ function main() {
         return 0;
     }
 
-    var end = begin();
-    var _ = (arr(a(), b()))[idx(c(), d())];
-    assert(end() == "1_2_3_4");
+    /* Uncomment this when https://github.com/HaxeFoundation/haxe/issues/11585 is fixed.
+       
+        var end = begin();
+        var _ = (arr(a(), b()))[idx(c(), d())]; 
+        assert(end() == "1_2_3_4");
+    
+    */
 
     function f1() {
         buf.push(1);

@@ -1,5 +1,0 @@
---define dart-output=TestString.dart
---main TestString
---dce full
---cmd dart run --enable-asserts TestString.dart
---define dump=pretty

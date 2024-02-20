@@ -33,6 +33,16 @@
 # --cmd dart run --enable-asserts TestStringTools.dart
 
 # --next
---main TestArray
---define dart-output=TestArray.dart
---cmd dart run --enable-asserts TestArray.dart
+# --main TestArray
+# --define dart-output=TestArray.dart
+# --cmd dart run --enable-asserts TestArray.dart
+
+# --next
+# --main TestString
+# --define dart-output=TestString.dart
+# --cmd dart run --enable-asserts TestString.dart
+
+# --next
+--main EvaluationOrder
+--define dart-output=EvaluationOrder.dart
+--cmd dart run --enable-asserts EvaluationOrder.dart

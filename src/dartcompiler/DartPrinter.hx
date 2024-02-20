@@ -884,6 +884,22 @@ class DartPrinter extends Printer {
     } else if (inv.isGetter) {
       print('getter '+inv.memberName.toString());
       return $fields[inv.memberName.toString()];
+    } else if (inv.isMethod) {
+      print('call '+inv.memberName.toString());
+      var name = inv.memberName.toString();
+      return switch (inv.positionalArguments) {
+        [] => $fields[name](),
+        [var a] => $fields[name](a),
+        [var a, var b] => $fields[name](a, b),
+        [var a, var b, var c] => $fields[name](a, b, c),
+        [var a, var b, var c, var d] => $fields[name](a, b, c, d),
+        [var a, var b, var c, var d, var e] => $fields[name](a, b, c, d, e),
+        [var a, var b, var c, var d, var e, var f] => $fields[name](a, b, c, d, e, f),
+        [var a, var b, var c, var d, var e, var f, var g] => $fields[name](a, b, c, d, e, f, g),
+        [var a, var b, var c, var d, var e, var f, var g, var h] => $fields[name](a, b, c, d, e, f, g, h),
+        [var a, var b, var c, var d, var e, var f, var g, var h, var i] => $fields[name](a, b, c, d, e, f, g, h, i),
+        _ => throw 'dyncall: too many function arguments'
+      };
     } else {
       super.noSuchMethod(inv);
     }
