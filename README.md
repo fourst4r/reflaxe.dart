@@ -29,7 +29,7 @@ Implementation Progress (checked when all tests pass):
 - [ ] Type
 
 <a id="1">*</a>
-Expanding a non-null array using resize will give a runtime error.
+Expanding a non-null array using resize() will give a runtime error.
 
 ### Features
 - [ ] Auto extern generation
