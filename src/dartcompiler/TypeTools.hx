@@ -4,7 +4,16 @@ package dartcompiler;
 
 import haxe.macro.Type;
 
-class TypeNameTools {
+class TypeTools {
+
+    public static function ref<T>(o:T) {
+        return {get: () -> o, toString: Std.string.bind(o)};
+    }
+
+    public static function mk(def:TypedExprDef, ?t:Type, ?pos) {
+        return TypedExprHelper.make(def, t ?? TDynamic(null), pos);
+    }
+
     public static function with(e:TypedExpr, ?edef:TypedExprDef, ?t:Type) {
 		return {
 			expr: edef == null ? e.expr : edef,

@@ -31,9 +31,22 @@ class Compiler extends GenericCompiler<DartPrinter, DartPrinter, DartPrinter, Da
     var _printer:Null<DartPrinter>;
     var _mainModule:Null<ModuleType>;
     var _imports:Map<String, String> = [];
+    var _classFilter:CompositeClassFilter;
+    var _exprFilter:CompositeExprFilter;
 
     public function new() {
         super();
+
+        _classFilter = new CompositeClassFilter([
+            new LateSuper(),
+            new Reflector(),
+            new TypeCoercion(),
+        ]);
+
+        _exprFilter = new CompositeExprFilter([
+            new BinopPrecedence(),
+            new TypeCoercion(),
+        ]);
     }
 
     function mkPrinter() {
@@ -111,10 +124,8 @@ class Compiler extends GenericCompiler<DartPrinter, DartPrinter, DartPrinter, Da
     public function compileClassImpl(classType: ClassType, varFields: Array<ClassVarData>, funcFields: Array<ClassFuncData>): Null<DartPrinter> {
         
         var cls = {classType: classType, varFields: varFields, funcFields: funcFields};
-        cls = new LateSuper().filterClass(cls);
-        cls = new Reflector().filterClass(cls);
-        cls = new TypeCoercion().filterClass(cls);
-
+        cls = _classFilter.filterClass(cls);
+        
         _printer.printClass(cls.classType, cls.varFields, cls.funcFields);
         
         return _printer;
@@ -155,9 +166,8 @@ class Compiler extends GenericCompiler<DartPrinter, DartPrinter, DartPrinter, Da
             }
         }
 
-        expr = new BinopPrecedence().filterExpr(expr);
-        expr = new TypeCoercion().filterExpr(expr);
-
+        expr = _exprFilter.filterExpr(expr);
+        
         _printer.printExpr(expr, topLevel);
         return _printer;
     }

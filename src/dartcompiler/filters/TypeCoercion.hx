@@ -4,15 +4,10 @@ package dartcompiler.filters;
 
 import haxe.macro.Type;
 import reflaxe.helpers.Context;
+import dartcompiler.TypeTools.mk;
 
 class TypeCoercion implements IExprFilter implements IClassFilter {
     public function new() {}
-
-    static function ref<T>(o:T) return {get: () -> o, toString: Std.string.bind(o)};
-
-    static function mk(def:TypedExprDef, ?t:Type) {
-        return TypedExprHelper.make(def, t ?? TDynamic(null), null);
-    }
 
     /**
         We have to do this specifically for returns, because for some reason
