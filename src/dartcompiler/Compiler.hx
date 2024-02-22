@@ -113,6 +113,7 @@ class Compiler extends GenericCompiler<DartPrinter, DartPrinter, DartPrinter, Da
         var cls = {classType: classType, varFields: varFields, funcFields: funcFields};
         cls = new LateSuper().filterClass(cls);
         cls = new Reflector().filterClass(cls);
+        cls = new TypeCoercion().filterClass(cls);
 
         _printer.printClass(cls.classType, cls.varFields, cls.funcFields);
         
@@ -155,6 +156,7 @@ class Compiler extends GenericCompiler<DartPrinter, DartPrinter, DartPrinter, Da
         }
 
         expr = new BinopPrecedence().filterExpr(expr);
+        expr = new TypeCoercion().filterExpr(expr);
 
         _printer.printExpr(expr, topLevel);
         return _printer;
