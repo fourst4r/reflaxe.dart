@@ -1,5 +1,7 @@
 package;
 
+import dart.core.DateTime;
+
 /**
 	The Date class provides a basic structure for date and time related
 	information. Date instances can be created by
@@ -21,8 +23,8 @@ package;
 	depending on the OS at runtime. The `Date.fromTime` method will not work with
 	timestamps outside the range on any target.
 **/
-@:native("DateTime")
-extern class Date {
+@:coreApi class Date {
+	var _date:DateTime;
 	/**
 		Creates a new date object from the given arguments.
 
@@ -35,7 +37,9 @@ extern class Date {
 		- min: 0 to 59
 		- sec: 0 to 59
 	**/
-	function new(year:Int, month:Int, day:Int, hour:Int, min:Int, sec:Int):Void;
+	public function new(year:Int, month:Int, day:Int, hour:Int, min:Int, sec:Int):Void {
+		_date = DateTime.utc(year, month, day, hour, min, sec);
+	}
 
 	/**
 		Returns the timestamp (in milliseconds) of `this` date.
@@ -47,81 +51,111 @@ extern class Date {
 		For measuring time differences with millisecond accuracy on
 		all platforms, see `haxe.Timer.stamp`.
 	**/
-	function getTime():Float;
+	public function getTime():Float {
+		return _date.millisecondsSinceEpoch;
+	}
 
 	/**
 		Returns the hours of `this` Date (0-23 range) in the local timezone.
 	**/
-	function getHours():Int;
+	public function getHours():Int {
+		return _date.toLocal().hour;
+	}
 
 	/**
 		Returns the minutes of `this` Date (0-59 range) in the local timezone.
 	**/
-	function getMinutes():Int;
+	public function getMinutes():Int {
+		return _date.toLocal().minute;
+	}
 
 	/**
 		Returns the seconds of `this` Date (0-59 range) in the local timezone.
 	**/
-	function getSeconds():Int;
+	public function getSeconds():Int {
+		return _date.toLocal().second;
+	}
 
 	/**
 		Returns the full year of `this` Date (4 digits) in the local timezone.
 	**/
-	function getFullYear():Int;
+	public function getFullYear():Int {
+		return _date.toLocal().year;
+	}
 
 	/**
 		Returns the month of `this` Date (0-11 range) in the local timezone.
 		Note that the month number is zero-based.
 	**/
-	function getMonth():Int;
+	public function getMonth():Int {
+		return _date.toLocal().month-1;
+	}
 
 	/**
 		Returns the day of `this` Date (1-31 range) in the local timezone.
 	**/
-	function getDate():Int;
+	public function getDate():Int {
+		return _date.toLocal().day;
+	}
 
 	/**
 		Returns the day of the week of `this` Date (0-6 range, where `0` is Sunday)
 		in the local timezone.
 	**/
-	function getDay():Int;
+	public function getDay():Int {
+		return (_date.toLocal().weekday + 5) % 7;
+	}
 
 	/**
 		Returns the hours of `this` Date (0-23 range) in UTC.
 	**/
-	function getUTCHours():Int;
+	public function getUTCHours():Int {
+		return _date.hour;
+	}
 
 	/**
 		Returns the minutes of `this` Date (0-59 range) in UTC.
 	**/
-	function getUTCMinutes():Int;
+	public function getUTCMinutes():Int {
+		return _date.minute;
+	}
 
 	/**
 		Returns the seconds of `this` Date (0-59 range) in UTC.
 	**/
-	function getUTCSeconds():Int;
+	public function getUTCSeconds():Int {
+		return _date.second;
+	}
 
 	/**
 		Returns the full year of `this` Date (4 digits) in UTC.
 	**/
-	function getUTCFullYear():Int;
+	public function getUTCFullYear():Int {
+		return _date.year;
+	}
 
 	/**
 		Returns the month of `this` Date (0-11 range) in UTC.
 		Note that the month number is zero-based.
 	**/
-	function getUTCMonth():Int;
+	public function getUTCMonth():Int {
+		return _date.month-1;
+	}
 
 	/**
 		Returns the day of `this` Date (1-31 range) in UTC.
 	**/
-	function getUTCDate():Int;
+	public function getUTCDate():Int {
+		return _date.day;
+	}
 
 	/**
 		Returns the day of the week of `this` Date (0-6 range, where `0` is Sunday)
 		in UTC.
 	**/
-	function getUTCDay():Int;
+	public function getUTCDay():Int {
+		return (_date.weekday + 5) % 7;
+	}
 
 	/**
 		Returns the time zone difference of `this` Date in the current locale
@@ -130,25 +164,36 @@ extern class Date {
 		Assuming the function is executed on a machine in a UTC+2 timezone,
 		`Date.now().getTimezoneOffset()` will return `-120`.
 	**/
-	function getTimezoneOffset():Int;
+	public function getTimezoneOffset():Int {
+		return _date.timeZoneOffset.inMinutes;
+	}
 
 	/**
 		Returns a string representation of `this` Date in the local timezone
 		using the standard format `YYYY-MM-DD HH:MM:SS`. See `DateTools.format` for
 		other formatting rules.
 	**/
-	function toString():String;
+	public function toString():String {
+		return _date.toString();
+	}
 
 	/**
 		Returns a Date representing the current local time.
 	**/
-	static function now():Date;
+	public static function now():Date {
+		final d = new Date(0, 0, 0, 0, 0, 0);
+		d._date = DateTime.now();
+		return d;
+	}
 
 	/**
 		Creates a Date from the timestamp (in milliseconds) `t`.
 	**/
-    @:native("fromMillisecondsSinceEpoch")
-	static function fromTime(t:Float):Date;
+	public static function fromTime(t:Float):Date {
+		final d = new Date(0, 0, 0, 0, 0, 0);
+		d._date = DateTime.fromMillisecondsSinceEpoch(Std.int(t));
+		return d; 
+	}
 
 	/**
 		Creates a Date from the formatted string `s`. The following formats are
@@ -161,5 +206,9 @@ extern class Date {
 		The first two formats expressed a date in local time. The third is a time
 		relative to the UTC epoch.
 	**/
-	static function fromString(s:String):Date;
+	public static function fromString(s:String):Date {
+		final d = new Date(0, 0, 0, 0, 0, 0);
+		d._date = DateTime.parse(s);
+		return d;
+	}
 }
