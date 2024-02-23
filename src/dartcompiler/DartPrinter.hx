@@ -682,7 +682,7 @@ class DartPrinter extends Printer {
                     write('}');
                 }
                 writeln();
-            case TReturn(e): 
+            case TReturn(e):
                 write('return');
                 if (e != null) {
                     write(' ');

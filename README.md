@@ -15,7 +15,7 @@ Implementation Progress (checked when all tests pass):
 ### Stdlib
 - [x] Array [*](#1)
 - [ ] Class<T> 
-- [ ] Date
+- [x] Date
 - [ ] EReg
 - [ ] Enum<T>
 - [ ] EnumValue

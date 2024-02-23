@@ -1,4 +1,0 @@
---define dart-output=EvaluationOrder.dart
---main EvaluationOrder
---dce full
---cmd dart run --enable-asserts EvaluationOrder.dart

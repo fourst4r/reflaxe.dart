@@ -73,7 +73,7 @@ package;
 		If `x` is outside of the signed Int32 range, or is `NaN`, `NEGATIVE_INFINITY` or `POSITIVE_INFINITY`, the result is unspecified.
 	**/
 	public static inline function int(x:Float):Int
-		return cast(x, Int);
+		return untyped x.truncate();
 
 	/**
 		Converts a `String` to an `Int`.
