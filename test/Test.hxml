@@ -1,6 +1,6 @@
 
 --dce full
---define analyzer-optimize
+# --define analyzer-optimize
 
 # --each
 # --main TestFloat
@@ -48,6 +48,18 @@
 # --cmd dart run --enable-asserts EvaluationOrder.dart
 
 # --next
---main TestDate
---define dart-output=TestDate.dart
---cmd dart run --enable-asserts TestDate.dart
+# --main TestDate
+# --define dart-output=TestDate.dart
+# --cmd dart run --enable-asserts TestDate.dart
+
+# --next
+# --main TestStd
+# --define dart-output=TestStd.dart
+# --cmd dart run --enable-asserts TestStd.dart
+# unit
+
+# --next
+--main TestMap
+--define dart-output=TestMap.dart
+--define dump=pretty
+--cmd dart run --enable-asserts TestMap.dart
