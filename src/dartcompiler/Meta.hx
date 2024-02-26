@@ -13,6 +13,8 @@ enum abstract Meta(String) to String {
     var Import = ":dart.import";
     var TopLevel = ":dart.topLevel";
     var ExtensionType = ":dart.extensionType";
+    /** Declares static function to be a named constructor. **/
+    var NamedCtor = ":dart.namedCtor";
 
     // internal compiler metas
     var LateCtor = ":dart.lateCtor";
