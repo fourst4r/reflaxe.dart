@@ -42,8 +42,16 @@ class DartPrinter extends Printer {
             printTypeParams(superClass.params);
         }
 
+        for (iface in classType.interfaces) {
+            write(' implements ');
+            write(iface.t.get().qualifiedName());
+            printTypeParams(iface.params);
+        }
+
         writeln(' {');
         indent();
+        writeln('/*funcFields=${funcFields.map(f -> f.field.name)}*/');
+        writeln('/*fields=${classType.fields.get().map(f -> f.name)}*/');
         for (field in varFields)
             printField(field);
         for (func in funcFields)
@@ -72,6 +80,10 @@ class DartPrinter extends Printer {
         if (_compiler.compileNativeTypeCodeMeta(type) != null)
             return;
 
+        if (type.isMultitype()) {
+            write('/*multitype*/');
+        }
+
         switch (type) {
             case TEnum(_.get() => t, params): 
                 // write('/*tenum*/');
@@ -81,36 +93,39 @@ class DartPrinter extends Printer {
                 // write('/*tinst*/');
                 write(t.qualifiedName());
                 printTypeParams(params);
+            case TAbstract(_.get() => t = {name:"Map", pack:["haxe","ds"]}, [TInst(_.get() => {name:k},kparams), v]):
+                // final qname = switch (k) {
+                //     case 
+                // }
+                write('haxe_ds_StringMap');
+                
+            case TAbstract(_.get() => t = {name:"Map", pack:["haxe","ds"]}, [TInst(_.get() => {name:"Int"},[]), v]):
+
             case TAbstract(_.get() => t = {name:"EnumValue", pack:[]}, _):
                 write('$$HxEnum');
             case TAbstract(_.get() => t = {name:"Class"|"Enum", pack:[]}, params):
                 write('Type');
             case TAbstract(_.get() => t, params):
                 // write('/*tabstract*/');
-                // trace(type);
-                // if (!once)
-                //     printType(t.type.getUnderlyingType(), qualified, true);
-                // else {
-                    write(t.qualifiedName());
-                    printTypeParams(params);
-                // }
-            case TDynamic(t): write('dynamic');
-            case TType(_.get() => t, params):
-                if (t.type.isAnonStruct()) {
-                    // so that $HxAnon field accesses work
-                    write('dynamic');
-                } else {
-                    // write('/*ttype*/');
+                if (!once)
+                    printType(type.getUnderlyingType(), qualified, true);
+                else {
+                    // this is a @:coreType
                     write(t.qualifiedName());
                     printTypeParams(params);
                 }
+            case TDynamic(t): write('dynamic/*$t*/');
+            case TType(_.get() => t, params):
+                write(t.qualifiedName());
+                printTypeParams(params);
+
             case TAnonymous(_.get() => a):
                 // write('/*tanon*/');
                 switch (a.status) {
                     case AClassStatics(_):
                         write('/* unhandled aclassstatics*/');
                     default:
-                        write('dynamic');
+                        write('dynamic/*tanon*/');
                 }
             case TFun(args, ret):
                 printPNameOrType(ret);
@@ -137,9 +152,9 @@ class DartPrinter extends Printer {
     }
 
     public function printTypedef(def:DefType) {
-        if (def.type.isAnonStruct())
-            // anon structs are dynamic in order for $HxAnon to work, so no need to gen
-            return;
+        // if (def.type.isAnonStruct())
+        //     // anon structs are dynamic in order for $HxAnon to work, so no need to gen
+        //     return;
 
         final name = def.qualifiedName();
         write('typedef $name');
@@ -151,11 +166,6 @@ class DartPrinter extends Printer {
             write('>');
         }
         write(' = ');
-        // switch (def.type) {
-        //     case TAnonymous(_): write('$HX_ANON as dynamic');
-        //     default:
-        // }
-        // write('dynamic');
         printType(def.type);
         write(';');
     }
@@ -163,8 +173,13 @@ class DartPrinter extends Printer {
     public function printField(varField: ClassVarData) {
         final type = varField.field.type;
         final expr = varField.field.expr() ?? varField.findDefaultExpr();
-        final name = varField.field.name;
+        final fieldName = varField.field.getNameOrNativeName();
+        final name = _compiler.compileVarName(fieldName);
+        final requiresNativeName = name != fieldName;
         
+        if (requiresNativeName)
+            varField.field.meta.add(Meta.NativeName, [macro $v{name}], varField.field.pos);
+
         if (varField.isStatic)
             write('static ');
 
@@ -191,13 +206,17 @@ class DartPrinter extends Printer {
         final ret = funcField.ret;
         final className = funcField.classType.qualifiedName();
         final fieldName = funcField.field.getNameOrNativeName();
-        final name = isConstructor ? className : fieldName;
+        final name = _compiler.compileVarName(isConstructor ? className : fieldName);
         final args = funcField.args;
         final body = funcField.expr;
         final params = funcField.field.params;
         final initers = funcField.field.meta.extract(Meta.Initializer);
         final isOverride = funcField.classType.overrides.exists(f -> f.get().name == funcField.field.name);
         final hasOptional = args.exists(a -> a.opt);
+        final requiresNativeName = name != fieldName;
+        
+        if (requiresNativeName)
+            funcField.field.meta.add(Meta.NativeName, [macro $v{name}], funcField.field.pos);
         
         if (isDummyCtor) {
             writeln('$className.$fieldName();');
@@ -240,21 +259,26 @@ class DartPrinter extends Printer {
             }
         }, ', ');
         if (hasOpt) write(']');
-        write(') ');
+        write(')');
 
         if (initers.length > 0) {
-            write(': ');
+            write(' : ');
             list(initers, m -> {
                 final e = m?.params.first();
                 if (e != null) {
                     write(e.toString());
                 }
             }, ', ');
-            write(' ');
         }
         
-        printFuncBody(body);
-        newline();
+        if (body != null) {
+            write(' ');
+            printFuncBody(body);
+        } else {
+            write(';');
+        }
+        
+        writeln();
     }
 
     function list<T>(el:Array<T>, fn:T->Void, sep:String) {
@@ -321,8 +345,16 @@ class DartPrinter extends Printer {
     public function printEnumADT(enumType: EnumType, constructs: Array<EnumOptionData>) {
         // more information here: https://dart.dev/language/class-modifiers#sealed
 
-        final enumName = enumType.qualifiedName();
-        writeln('sealed class ${enumName} extends $$HxEnum {');
+        final enumName = _compiler.compileVarName(enumType.qualifiedName());
+        write('sealed class ${enumName}');
+        
+        if (enumType.params.length > 0) {
+            write('<');
+            list(enumType.params, p -> write(p.name), ', ');
+            write('>');
+        }
+
+        writeln(' extends $$HxEnum {');
         indent();
         writeln('$enumName(super.index);');
         unindent();
@@ -332,10 +364,26 @@ class DartPrinter extends Printer {
             final fname = con.field.name;
             final index = con.field.index;
             final conName = '${enumName}_$fname';
-            writeln('class $conName extends $enumName {');
+            final params = enumType.params.concat(con.field.params);
+
+            write('class $conName');
+            if (params.length > 0) {
+                write('<');
+                list(params, p -> write(p.name), ', ');
+                write('>');
+            }
+            
+            write(' extends $enumName');
+            if (enumType.params.length > 0) {
+                write('<');
+                list(enumType.params, p -> write(p.name), ', ');
+                write('>');
+            }
+            writeln(' {');
+            
             indent();
             for (arg in con.args) {
-                printType(arg.type);
+                printPNameOrType(arg.type);
                 writeln(' ${arg.name};');
             }
             write('$conName(');
@@ -393,6 +441,35 @@ class DartPrinter extends Printer {
             printType(t);
     }
 
+    public function printCall(e:TypedExpr, el:Array<TypedExpr>) {
+        final nfc = _compiler.compileNativeFunctionCodeMeta(e, el);
+        if (nfc != null) {
+            write(nfc);
+        } else {
+            _compiler.compileExpression(e);
+
+            // TODO: do this properly
+            final params = e.getFunctionTypeParams() ?? [];
+            if (!params.exists(t -> t.match(TMono(_)))) {
+                printTypeParams(params);
+            }
+            
+            if (e.t.isNull())
+                write('!');
+
+            final expectedArgTypes = e.t.getTFunArgs();
+            var n = 0;
+            write('(');
+            list(el, e -> {
+                _compiler.compileExpression(e);
+                if (e.t.isNull() && !e.isNullExpr() && expectedArgTypes != null && !expectedArgTypes[n].t.isNull())
+                    write('!');
+                n++;
+            }, ', ');
+            write(')');
+        }
+    }
+
     public function printExpr(expr: TypedExpr, topLevel: Bool) {
         final cx = _compiler.compileExpression.bind(_, topLevel);
 
@@ -407,29 +484,27 @@ class DartPrinter extends Printer {
                 write(']');
             case TBinop(op, e1, e2):
                 printBinop(op, e1, e2);
-            case TField(e, FStatic(_.get() => c,cf)):
-
-                final cf = cf.get();
+            case TField(e, FStatic(_.get() => c, _.get() => cf)):
                 final fname = cf.getNameOrNative();
-                if (cf.hasMeta(":native")) {
+                if (cf.hasMeta(Meta.Native)) {
                     write(fname);
-                } else {
-                    // TODO: figure out why this works for Class<T>, but compileExpression does not...
+                } /*else if (cf.hasMeta(Meta.NamedCtor)) {
                     write(c.qualifiedName());
-                    // _compiler.compileExpression(e);
+                }*/ else {
+                    // TODO: figure out why this works for Class<T>, but compileExpression does not...
+                    // write(c.qualifiedName());
+                    _compiler.compileExpression(e);
                     write('.${cf.name}');
                 }
             case TField(e, FInstance(_,_,cf)|FClosure(_,cf)): 
-
                 final cf = cf.get();
-                final fname = cf.getNameOrNative();
-                if (cf.hasMeta(":native")) {
-                    write(fname);
+                if (cf.hasMeta(Meta.Native)) {
+                    write(cf.getNameOrNative());
                 } else {
                     _compiler.compileExpression(e);
                     if (e.t.isNull())
                         write('!');
-                    write('.${cf.getNameOrNativeName()}');
+                    write('.${_compiler.compileVarName(cf.getNameOrNativeName())}');
                 }
             case TField(e, FAnon(_.get() => cf)):
                 
@@ -472,8 +547,10 @@ class DartPrinter extends Printer {
                 
                 if (m.getCommonData().hasMeta(Meta.Native)) {
                     write(m.getNameOrNative());
+                    // write('/*${m.getCommonData().params}*/');
                 } else {
                     write(m.getCommonData().qualifiedName());
+                    
                 }
             case TObjectDecl(fields):
                 final nullableFields = switch (expr.t) {
@@ -517,33 +594,22 @@ class DartPrinter extends Printer {
                 write('[');
                 list(el, _compiler.compileExpression.bind(_, topLevel), ', ');
                 write('])');
-            case TCall(e, el):
-                final nfc = _compiler.compileNativeFunctionCodeMeta(e, el);
-                if (nfc != null) {
-                    write(nfc);
+            case TCall({expr: TField(e, FStatic(_.get() => c, _.get() => cf))}, el) if (cf.meta.has(Meta.NamedCtor)):
+                final fname = cf.getNameOrNative();
+                if (cf.hasMeta(Meta.Native)) {
+                    write(fname);
                 } else {
+                    // TODO: figure out why this works for Class<T>, but compileExpression does not...
+                    // write(c.qualifiedName());
                     _compiler.compileExpression(e);
-
-                    // TODO: do this properly
-                    final params = e.getFunctionTypeParams() ?? [];
-                    if (!params.exists(t -> t.match(TMono(_)))) {
-                        printTypeParams(params);
-                    }
-                    
-                    if (e.t.isNull())
-                        write('!');
-
-                    final expectedArgTypes = e.t.getTFunArgs();
-                    var n = 0;
-                    write('(');
-                    list(el, e -> {
-                        _compiler.compileExpression(e);
-                        if (e.t.isNull() && !e.isNullExpr() && expectedArgTypes != null && !expectedArgTypes[n].t.isNull())
-                            write('!');
-                        n++;
-                    }, ', ');
-                    write(')');
+                    write('.${cf.name}');
                 }
+                write('(');
+                list(el, cx, ', ');
+                write(')');
+                // write('/*we here*/');
+            case TCall(e, el):
+                printCall(e, el);
             case TNew(_.get() => c, params, el):
 
                 final result = _compiler.compileNativeFunctionCodeMeta(expr, el);
@@ -565,35 +631,9 @@ class DartPrinter extends Printer {
                     write(')');
                 }
 
-            case TUnop(op, postFix, e): switch (op) {
-                case OpNot: 
-                    write('!');
-                    _compiler.compileExpression(e);
-                case OpNeg: 
-                    write('-');
-                    _compiler.compileExpression(e);
-                case OpNegBits: 
-                    write('~');
-                    _compiler.compileExpression(e);
-                case OpSpread: 
-                    write('...');
-                case OpIncrement:
-                    if (postFix) {
-                        _compiler.compileExpression(e);
-                        write('++');
-                    } else {
-                        write('++');
-                        _compiler.compileExpression(e);
-                    }
-                case OpDecrement: 
-                    if (postFix) {
-                        _compiler.compileExpression(e);
-                        write('--');
-                    } else {
-                        write('--');
-                        _compiler.compileExpression(e);
-                    }
-            }
+            case TUnop(op, postFix, e): 
+                printUnop(op, postFix, e);
+
             case TFunction(tfunc):
                 write('(');
                 list(tfunc.args, printArg, ', ');
@@ -722,6 +762,24 @@ class DartPrinter extends Printer {
                 write(s);
             case e:
                 trace('unhandled expr: '+e);
+        }
+    }
+
+    function printUnop(op:Unop, postFix:Bool, e:TypedExpr) {
+        final opStr = switch (op) {
+            case OpIncrement: "++";
+            case OpDecrement: "--";
+            case OpNot: "!";
+            case OpNeg: "-";
+            case OpSpread: "...";
+            case OpNegBits: "~";
+        }
+        if (postFix) {
+            _compiler.compileExpression(e);
+            write(opStr);
+        } else {
+            write(opStr);
+            _compiler.compileExpression(e);
         }
     }
 
