@@ -8,7 +8,7 @@ extern class List<E> implements ArrayAccess<E> implements dart.core.Iterable<E> 
     // function addAll(value:E):Void;
     // @:nativeFunctionCode("{this} + {arg0}")
     inline function concat(l:List<E>):List<E>
-        return untyped __dart__("({0} + {1})", this, l);
+        return (untyped __dart__("({0} + {1})", this, l):List<E>);
     function fillRange(start:Int, end:Int, ?fillValue:E):Void;
     function indexOf(element:E, start:Int = 0):Int;
     function insert(index:Int, element:E):Void;
