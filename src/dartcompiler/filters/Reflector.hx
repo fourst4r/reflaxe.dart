@@ -51,12 +51,12 @@ class Reflector implements IClassFilter {
         cls.funcFields.push(
             new ClassFieldBuilder(FMethod(MethNormal))
                 .named('__hx_setfield')
-                .implemented(macro function(field:String, value:Dynamic):Dynamic {
+                .implemented(macro function(field:String, __value:Dynamic):Dynamic {
                     $b{[
                         for (fname in allFields)
-                            macro untyped if (field == $v{fname}) return $i{fname} = value
+                            macro untyped if (field == $v{fname}) return $i{fname} = __value
                     ]};
-                    return ${superCls == null ? macro null : macro untyped __dart__("super.__hx_setfield({0}, {1})", field, value)};
+                    return ${superCls == null ? macro null : macro untyped __dart__("super.__hx_setfield({0}, {1})", field, __value)};
                 })
                 .positioned(pos)
                 .buildFunc(cls.classType)
