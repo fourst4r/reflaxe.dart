@@ -24,7 +24,11 @@ class TypeCoercion implements IExprFilter implements IClassFilter {
 
     function coerceReturnsToDouble(e:TypedExpr):TypedExpr {
         return switch (e.expr) {
-            case TReturn(re): return e.copy(TReturn(mk(TCall(mk(TField(re, FDynamic("toDouble"))), []))));
+            case TReturn(re):
+                switch (re.expr) {
+                    case TConst(TFloat(_)): e;
+                    default: e.copy(TReturn(mk(TCall(mk(TField(re, FDynamic("toDouble"))), []))));
+                }
             default: e.map(coerceReturnsToDouble);
         }
     }
