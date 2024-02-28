@@ -19,7 +19,7 @@ Implementation Progress (checked when all tests pass):
 - [ ] EReg
 - [ ] Enum<T>
 - [ ] EnumValue
-- [ ] Map
+- [x] Map
 - [x] Math
 - [ ] Reflect
 - [ ] Std
