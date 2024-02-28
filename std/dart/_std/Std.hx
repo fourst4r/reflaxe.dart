@@ -21,7 +21,8 @@ package;
 		If `t` is a class or interface with `@:generic` meta, the result is `false`.
 	**/
 	public static inline function isOfType(v:Dynamic, t:Dynamic):Bool
-		return untyped __dart__("({0}.runtimeType == {1})", v, t);
+		return untyped __dart__("({0} is {1})", v, t);
+		// return untyped __dart__("({0}.runtimeType == {1})", v, t);
 
 	/**
 		Checks if object `value` is an instance of class or interface `c`.

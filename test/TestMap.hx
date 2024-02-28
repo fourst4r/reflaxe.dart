@@ -6,6 +6,7 @@ function aeq<T>(a:Array<T>, b:Array<T>) {
     }
 }
 
+@:nullSafety(Strict)
 function main() {
 
     // String
@@ -250,21 +251,23 @@ function main() {
     assert(map.get(b) == null);
 
     // [] access
-    var map = new Map();
-    assert(map["foo"] == null);
-    map["foo"] = 12;
-    assert(map.get("foo") == 12);
-    assert(map["foo"] == 12);
-    map["foo"] += 2;
-    assert(map.get("foo") == 14);
-    assert(map["foo"] == 14);
-    map["foo"] *= map["foo"] + 2;
-    assert(map["foo"] == 224);
-    map["f" + "o" + "o"] -= 223;
-    assert(map[(function(s) return s + "o")("fo")] == 1);
-    map["bar"] = map["foo"] = 9;
-    assert(map["bar"] == 9);
-    assert(map["foo"] == 9);
+    @:nullSafety(Off) {
+        var map = new Map();
+        assert(map["foo"] == null);
+        map["foo"] = 12;
+        assert(map.get("foo") == 12);
+        assert(map["foo"] == 12);
+        map["foo"] = cast(map["foo"], Int) + 2;
+        assert(map.get("foo") == 14);
+        assert(map["foo"] == 14);
+        map["foo"] = cast(map["foo"], Int) * (cast(map["foo"], Int) + 2);
+        assert(map["foo"] == 224);
+        map["f" + "o" + "o"] = cast(map["f" + "o" + "o"], Int) - 223;
+        assert(map[(function(s) return s + "o")("fo")] == 1);
+        map["bar"] = map["foo"] = 9;
+        assert(map["bar"] == 9);
+        assert(map["foo"] == 9);
+    }
 
     assert(['' => ''].keys().next() == '');
     assert(['' => ''].iterator().next() == '');

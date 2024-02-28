@@ -89,17 +89,21 @@ class DartPrinter extends Printer {
                 // write('/*tenum*/');
                 write(t.qualifiedName());
                 printTypeParams(params);
-            case TInst(_.get() => t, params):
-                // write('/*tinst*/');
-                write(t.qualifiedName());
-                printTypeParams(params);
-            case TAbstract(_.get() => t = {name:"Map", pack:["haxe","ds"]}, [TInst(_.get() => {name:k},kparams), v]):
-                // final qname = switch (k) {
-                //     case 
-                // }
-                write('haxe_ds_StringMap');
-                
-            case TAbstract(_.get() => t = {name:"Map", pack:["haxe","ds"]}, [TInst(_.get() => {name:"Int"},[]), v]):
+        
+            /** @:multiType HACK!!!!!!! implement this properly later. **/
+            // case TAbstract(_.get() => {name:"Map", pack:["haxe","ds"]}, [TInst(_.get() => {name:"String"},_), v])
+            //    | TInst(_.get() => {name:"IMap", pack:["haxe"]}, [TInst(_.get() => {name:"String"},_), v]):
+            //     write('haxe_ds_StringMap');
+            //     printTypeParams([v]);
+            // case TAbstract(_.get() => {name:"Map", pack:["haxe","ds"]}, [TAbstract(_.get() => {name:"Int"},_), v])
+            //    | TInst(_.get() => {name:"IMap", pack:["haxe"]}, [TAbstract(_.get() => {name:"Int"},_), v]):
+            //     write('haxe_ds_IntMap');
+            //     printTypeParams([v]);
+            // case TAbstract(_.get() => {name:"Map", pack:["haxe","ds"]}, params)
+            //    | TInst(_.get() => {name:"IMap", pack:["haxe"]}, params):
+            //     write('haxe_ds_ObjectMap');
+            //     printTypeParams(params);
+
 
             case TAbstract(_.get() => t = {name:"EnumValue", pack:[]}, _):
                 write('$$HxEnum');
@@ -114,6 +118,10 @@ class DartPrinter extends Printer {
                     write(t.qualifiedName());
                     printTypeParams(params);
                 }
+            case TInst(_.get() => t, params):
+                // write('/*tinst*/');
+                write(t.qualifiedName());
+                printTypeParams(params);
             case TDynamic(t): write('dynamic/*$t*/');
             case TType(_.get() => t, params):
                 write(t.qualifiedName());
@@ -488,9 +496,7 @@ class DartPrinter extends Printer {
                 final fname = cf.getNameOrNative();
                 if (cf.hasMeta(Meta.Native)) {
                     write(fname);
-                } /*else if (cf.hasMeta(Meta.NamedCtor)) {
-                    write(c.qualifiedName());
-                }*/ else {
+                } else {
                     // TODO: figure out why this works for Class<T>, but compileExpression does not...
                     // write(c.qualifiedName());
                     _compiler.compileExpression(e);
