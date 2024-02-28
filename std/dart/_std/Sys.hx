@@ -1,82 +1,47 @@
 package;
 
-/*
- * Copyright (C)2005-2019 Haxe Foundation
- *
- * Permission is hereby granted, free of charge, to any person obtaining a
- * copy of this software and associated documentation files (the "Software"),
- * to deal in the Software without restriction, including without limitation
- * the rights to use, copy, modify, merge, publish, distribute, sublicense,
- * and/or sell copies of the Software, and to permit persons to whom the
- * Software is furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
- * DEALINGS IN THE SOFTWARE.
- */
- 
+import dart.io.Platform;
+
 //  @:coreApi
 class Sys {
-    //  public static inline function time():Float {
-    //      return Time.time();
-    //  }
+    public static inline function time():Float
+        return dart.core.DateTime.now().millisecondsSinceEpoch;
  
-    //  public static function exit(code:Int):Void {
-    //      python.lib.Sys.exit(code);
-    //  }
+    public static function exit(code:Int):Void
+        dart.io.Lib.exit(code);
  
-    //  public static inline function print(v:Dynamic):Void {
-    //      python.Lib.print(v);
-    //  }
+    public static inline function print(v:Dynamic):Void
+        dart.io.Lib.stdout.write(v);
  
     public static inline function println(v:Dynamic):Void {
         untyped print(v);
     }
  
-    //  public static function args():Array<String> {
-    //      var argv = python.lib.Sys.argv;
-    //      return argv.slice(1);
-    //  }
+    public static function args():Array<String>
+        return Array.fromList(Platform.executableArguments);
  
-    //  public static function getEnv(s:String):String {
-    //      return Os.environ.get(s, null);
-    //  }
+    public static function getEnv(s:String):String
+        return Platform.environment[s];
  
-    //  public static function putEnv(s:String, v:Null<String>):Void {
-    //      if (v == null) {
-    //          try {
-    //              Os.environ.remove(s);
-    //          } catch(e:python.Exceptions.KeyError) {
-    //              // the variable didn't exist
-    //          }
-    //          return;
-    //      }
-    //      Os.environ.set(s, v);
-    //  }
+    public static function putEnv(s:String, v:Null<String>):Void {
+        throw new haxe.exceptions.NotImplementedException();
+    }
  
-    //  public static function environment():Map<String, String> {
-    //      final environ = new StringMap();
-    //      final env = Os.environ;
-    //      for (key in env.keys()) {
-    //          environ.set(key, env.get(key, null));
-    //      }
-    //      return environ;
-    //  }
+     public static function environment():Map<String, String> {
+         final environ = new StringMap();
+         final env = Platform.environment;
+         for (key in env.keys()) {
+            environ.set(key, env[key]);
+         }
+         return environ;
+     }
  
-    //  public static function sleep(seconds:Float):Void {
-    //      python.lib.Time.sleep(seconds);
-    //  }
+    public static function sleep(seconds:Float):Void
+        return dart.io.Lib.sleep(seconds);
  
-    //  public static function setTimeLocale(loc:String):Bool {
-    //      return false;
-    //  }
+    public static function setTimeLocale(loc:String):Bool {
+        return false;
+    }
  
     //  public static function getCwd():String {
     //      return haxe.io.Path.addTrailingSlash(python.lib.Os.getcwd());
@@ -86,16 +51,16 @@ class Sys {
     //      python.lib.Os.chdir(s);
     //  }
  
-    //  public static function systemName():String {
-    //      return switch (python.lib.Sys.platform) {
-    //          case var x if (StringTools.startsWith(x, "linux")):
-    //              "Linux";
-    //          case "darwin": "Mac";
-    //          case "win32" | "cygwin": "Windows";
-    //          case _:
-    //              throw "not supported platform";
-    //      }
-    //  }
+    public static function systemName():String {
+        return if (Platform.isLinux) 
+            "Linux";
+        else if (Platform.isMacOS) 
+            "Mac";
+        else if (Platform.isWindows) 
+            "Windows";
+        else 
+            throw "not supported platform";
+    }
  
     //  public static function command(cmd:String, ?args:Array<String>):Int {
     //      return if (args == null)

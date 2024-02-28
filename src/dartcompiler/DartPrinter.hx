@@ -89,22 +89,6 @@ class DartPrinter extends Printer {
                 // write('/*tenum*/');
                 write(t.qualifiedName());
                 printTypeParams(params);
-        
-            /** @:multiType HACK!!!!!!! implement this properly later. **/
-            // case TAbstract(_.get() => {name:"Map", pack:["haxe","ds"]}, [TInst(_.get() => {name:"String"},_), v])
-            //    | TInst(_.get() => {name:"IMap", pack:["haxe"]}, [TInst(_.get() => {name:"String"},_), v]):
-            //     write('haxe_ds_StringMap');
-            //     printTypeParams([v]);
-            // case TAbstract(_.get() => {name:"Map", pack:["haxe","ds"]}, [TAbstract(_.get() => {name:"Int"},_), v])
-            //    | TInst(_.get() => {name:"IMap", pack:["haxe"]}, [TAbstract(_.get() => {name:"Int"},_), v]):
-            //     write('haxe_ds_IntMap');
-            //     printTypeParams([v]);
-            // case TAbstract(_.get() => {name:"Map", pack:["haxe","ds"]}, params)
-            //    | TInst(_.get() => {name:"IMap", pack:["haxe"]}, params):
-            //     write('haxe_ds_ObjectMap');
-            //     printTypeParams(params);
-
-
             case TAbstract(_.get() => t = {name:"EnumValue", pack:[]}, _):
                 write('$$HxEnum');
             case TAbstract(_.get() => t = {name:"Class"|"Enum", pack:[]}, params):
@@ -160,9 +144,6 @@ class DartPrinter extends Printer {
     }
 
     public function printTypedef(def:DefType) {
-        // if (def.type.isAnonStruct())
-        //     // anon structs are dynamic in order for $HxAnon to work, so no need to gen
-        //     return;
 
         final name = def.qualifiedName();
         write('typedef $name');
