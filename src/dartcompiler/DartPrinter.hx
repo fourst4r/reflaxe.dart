@@ -234,20 +234,7 @@ class DartPrinter extends Printer {
         }
 
         write('(');
-        var hasOpt = false;
-        list(args, a -> {
-            if (a.opt && !hasOpt) {
-                hasOpt = true;
-                write('[');
-            }
-            printPNameOrType(a.type);
-            write(' ${a.name}');
-            if (a.expr != null) {
-                write('=');
-                _compiler.compileExpression(a.expr);
-            }
-        }, ', ');
-        if (hasOpt) write(']');
+        printArgs(args);
         write(')');
 
         if (initers.length > 0) {
@@ -268,6 +255,27 @@ class DartPrinter extends Printer {
         }
         
         writeln();
+    }
+
+    function printArgs(args:Array<ClassFuncArg>) {
+        var hasOpt = false;
+        list(args, a -> {
+            if (a.opt && !hasOpt) {
+                hasOpt = true;
+                write('[');
+            }
+
+            if (a.hasMeta(Meta.Covariant))
+                write('covariant ');
+
+            printPNameOrType(a.type);
+            write(' ${a.name}');
+            if (a.expr != null) {
+                write('=');
+                _compiler.compileExpression(a.expr);
+            }
+        }, ', ');
+        if (hasOpt) write(']');
     }
 
     function list<T>(el:Array<T>, fn:T->Void, sep:String) {
@@ -623,6 +631,7 @@ class DartPrinter extends Printer {
 
             case TFunction(tfunc):
                 write('(');
+                // printArgs(tfunc.args);
                 list(tfunc.args, printArg, ', ');
                 writeln(') {');
                 indent();
@@ -811,6 +820,7 @@ class DartPrinter extends Printer {
         if (assignOp)
             opStr += '=';
 
+        // TODO: move all this to a filter
         function printSafeString(e:TypedExpr) {
             _compiler.compileExpression(e);
             if (!e.t.isString())
@@ -877,6 +887,7 @@ class DartPrinter extends Printer {
     }
 
     function printSwitch(e:TypedExpr, cases:Array<{values:Array<TypedExpr>, expr:TypedExpr}>, edef:Null<TypedExpr>) {
+        // TODO: use temp var name generator here
         write('var __temp = ');
         _compiler.compileExpression(e.unwrapParenthesis());
         writeln(';');
