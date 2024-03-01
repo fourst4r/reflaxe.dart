@@ -12,4 +12,5 @@ extern class Platform {
     var isWindows(default, never):Bool;
     var operatingSystem(default, never):String;
     var resolvedExecutable(default, never):String;
+    var script(default, never):dart.core.Uri;
 }

@@ -1,6 +1,7 @@
 package;
 
 import dart.io.Platform;
+import dart.io.Directory;
 
 //  @:coreApi
 class Sys {
@@ -43,13 +44,13 @@ class Sys {
         return false;
     }
  
-    //  public static function getCwd():String {
-    //      return haxe.io.Path.addTrailingSlash(python.lib.Os.getcwd());
-    //  }
+    public static function getCwd():String {
+        return Directory.current.path;
+    }
  
-    //  public static function setCwd(s:String):Void {
-    //      python.lib.Os.chdir(s);
-    //  }
+    public static function setCwd(s:String):Void {
+        Directory.current = new Directory(s);
+    }
  
     public static function systemName():String {
         return if (Platform.isLinux) 
@@ -73,16 +74,13 @@ class Sys {
     //      return python.lib.Timeit.default_timer();
     //  }
  
-    //  @:deprecated("Use programPath instead") public static function executablePath():String {
-    //      return python.lib.Sys.argv[0];
-    //  }
+    @:deprecated("Use programPath instead") public static function executablePath():String {
+        return Platform.resolvedExecutable;
+    }
  
-    //  // It has to be initialized before any call to Sys.setCwd()...
-    //  static var _programPath = sys.FileSystem.fullPath(python.lib.Inspect.getsourcefile(Sys));
- 
-    //  public static function programPath():String {
-    //      return _programPath;
-    //  }
+    public static function programPath():String {
+        return Platform.script.toString();
+    }
  
     //  public static function getChar(echo:Bool):Int {
     //      var ch = switch (systemName()) {

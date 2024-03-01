@@ -4,6 +4,9 @@ package dart.io;
 extern var stdout(default, never):Stdout;
 
 @:dart.import("dart:io")
+extern var systemEncoding(default, never):dart.convert.Encoding;
+
+@:dart.import("dart:io")
 extern function exit(code:Int):Void;
 
 @:dart.import("dart:io")
