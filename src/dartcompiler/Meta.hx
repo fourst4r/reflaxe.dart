@@ -15,6 +15,10 @@ enum abstract Meta(String) to String {
     var ExtensionType = ":dart.extensionType";
     /** Declares static function to be a named constructor. **/
     var NamedCtor = ":dart.namedCtor";
+    /** Declares named function argument. **/
+    var Named = ":dart.named";
+    /** Marks a function argument type as covariant. **/
+    var Covariant = ":dart.covariant";
 
     // internal compiler metas
     var LateCtor = ":dart.lateCtor";
