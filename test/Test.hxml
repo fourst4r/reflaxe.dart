@@ -1,5 +1,5 @@
 
---dce full
+--dce no
 # --define analyzer-optimize
 
 # --each
@@ -59,7 +59,11 @@
 # unit
 
 # --next
---main TestMap
---define dart-output=TestMap.dart
---define dump=pretty
---cmd dart run --enable-asserts TestMap.dart
+# --main TestMap
+# --define dart-output=TestMap.dart
+# --define dump=pretty
+# --cmd dart run --enable-asserts TestMap.dart
+
+
+--main TestIdk
+--define dart-output=TestIdk.dart

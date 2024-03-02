@@ -27,6 +27,17 @@ class ClassFieldBuilder {
         _isPublic = true;
     }
 
+    public static function basedOnVar(v:ClassVarData) {
+        final builder = new ClassFieldBuilder(v.field.kind);
+        builder._name = v.field.name;
+        builder._pos = v.field.pos;
+        builder._isPublic = v.field.isPublic;
+        builder._isStatic = v.isStatic;
+        builder._fieldType = v.field.type;
+        builder._texpr = v.field.expr();
+        return builder;
+    }
+
     public function named(name:String) {
         _name = name;
         return this;

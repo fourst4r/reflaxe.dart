@@ -12,16 +12,16 @@ package;
 		If `t` is a class or interface with `@:generic` meta, the result is `false`.
 	**/
 	@:deprecated('Std.is is deprecated. Use Std.isOfType instead.')
-	public static inline function is(v:Dynamic, t:Dynamic):Bool
-		return isOfType(v, t);
+	public static inline function is<T>(v:Dynamic, t:Dynamic):Bool
+		return untyped __dart__("({0} is T)", v, t);
 
 	/**
 		Tells if a value `v` is of the type `t`. Returns `false` if `v` or `t` are null.
 
 		If `t` is a class or interface with `@:generic` meta, the result is `false`.
 	**/
-	public static inline function isOfType(v:Dynamic, t:Dynamic):Bool
-		return untyped __dart__("({0} is {1})", v, t);
+	public static inline function isOfType<T>(v:Dynamic, t:Dynamic):Bool
+		return untyped __dart__("({0} is T)", v, t);
 		// return untyped __dart__("({0}.runtimeType == {1})", v, t);
 
 	/**

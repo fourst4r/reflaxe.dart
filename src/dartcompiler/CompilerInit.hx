@@ -101,6 +101,9 @@ class CompilerInit {
 			"dynamic",
 			"implements",
 			"set",
+			"int",
+			"double",
+			"num"
 		];
 	}
 }

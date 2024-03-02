@@ -12,11 +12,11 @@ enum ValueType {
     TUnknown;
 }
 
-// @:coreApi 
-@:nativeName("$HxType")
+@:coreApi 
+@:native("$HxType")
 class Type {
-    static var _classes:Map<dart.core.Type, Class<Dynamic>>;
-    static var _enums:Map<dart.core.Type, Enum<Dynamic>>;
+    @:dart.injectClasses static var _classes:Map<String, Class<Dynamic>>;
+    @:dart.injectEnums static var _enums:Map<String, Enum<Dynamic>>;
 
     public static function getClass<T>(o:T):Class<T> {
         return cast _classes[untyped o.runtimeType];
@@ -160,7 +160,7 @@ class Type {
             return TClass(Array);
         } else if (untyped v.runtimeType == $HxAnon) {
             return TObject;
-        } else if (v is dart.core.Enum || untyped v.runtimeType == $HxEnum) {
+        } else if (v is dart.core.Enum || untyped v.runtimeType == $HxEnumValue) {
             return TEnum(untyped v.runtimeType);
             // return TEnum(Syntax.field(v, "__class__"));
         } else if (untyped __dart__("{0} is Object", v)) {

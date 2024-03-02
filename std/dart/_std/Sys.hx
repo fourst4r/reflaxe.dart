@@ -2,6 +2,8 @@ package;
 
 import dart.io.Platform;
 import dart.io.Directory;
+import dart.core.Duration;
+import haxe.ds.StringMap;
 
 //  @:coreApi
 class Sys {
@@ -19,10 +21,10 @@ class Sys {
     }
  
     public static function args():Array<String>
-        return Array.fromList(Platform.executableArguments);
+        return @:privateAccess Array.fromList(Platform.executableArguments);
  
     public static function getEnv(s:String):String
-        return Platform.environment[s];
+        return untyped Platform.environment[s];
  
     public static function putEnv(s:String, v:Null<String>):Void {
         throw new haxe.exceptions.NotImplementedException();
@@ -30,15 +32,15 @@ class Sys {
  
      public static function environment():Map<String, String> {
          final environ = new StringMap();
-         final env = Platform.environment;
-         for (key in env.keys()) {
-            environ.set(key, env[key]);
-         }
+        //  final env = Platform.environment;
+        //  for (key in env.keys) {
+        //     environ.set(key, env[key]);
+        //  }
          return environ;
      }
  
     public static function sleep(seconds:Float):Void
-        return dart.io.Lib.sleep(seconds);
+        return dart.io.Lib.sleep(new Duration(0, 0, 0, 0, Std.int(seconds*1000)));
  
     public static function setTimeLocale(loc:String):Bool {
         return false;

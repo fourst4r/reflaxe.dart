@@ -25,6 +25,10 @@ class DartPrinter extends Printer {
         final className = classType.qualifiedName();
         final superClass = classType.superClass;
         
+        if (classType.name.endsWith("_Impl_")) {
+            write('/*${classType.meta.get()}*/');
+        }
+
         if (classType.isInterface)
             write('abstract ');
         write('class $className');
@@ -90,9 +94,11 @@ class DartPrinter extends Printer {
                 write(t.qualifiedName());
                 printTypeParams(params);
             case TAbstract(_.get() => t = {name:"EnumValue", pack:[]}, _):
+                write('$$HxEnumValue');
+            case TAbstract(_.get() => t = {name:"Class", pack:[]}, params):
+                write('$$HxClass');
+            case TAbstract(_.get() => t = {name:"Enum", pack:[]}, params):
                 write('$$HxEnum');
-            case TAbstract(_.get() => t = {name:"Class"|"Enum", pack:[]}, params):
-                write('Type');
             case TAbstract(_.get() => t, params):
                 // write('/*tabstract*/');
                 if (!once)
@@ -310,6 +316,7 @@ class DartPrinter extends Printer {
         //     printField(field);
         // for (func in funcFields)
         //     printFunction(func);
+        
         unindent();
         writeln('}');
     }
@@ -351,7 +358,7 @@ class DartPrinter extends Printer {
             write('>');
         }
 
-        writeln(' extends $$HxEnum {');
+        writeln(' extends $$HxEnumValue {');
         indent();
         writeln('$enumName(super.index);');
         unindent();
@@ -961,10 +968,27 @@ class DartPrinter extends Printer {
     }
   }
 }");
-        writeln("sealed class $HxEnum {
+        writeln("sealed class $HxEnumValue {
     int index;
-    $HxEnum(this.index);
+    $HxEnumValue(this.index);
 }");
+
+        writeln("typedef $HxClass = ({
+    String name,
+    String? superName,
+    List<String> classFields,
+    Function createInstance,
+    Function createEmptyInstance,
+    List<String> instanceFields,
+});");
+
+          writeln("typedef $HxEnum<T> = ({
+    String name,
+    List<String> constructs,
+    Function createEnumIndex,
+    Function createEnum,
+    List<$HxEnumValue> enums,
+});");
     }
 }
 

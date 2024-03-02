@@ -14,18 +14,22 @@ import reflaxe.helpers.Context;
 class Reflector implements IClassFilter {
     public function new() {}
 
-    function isUnreflectable(v:ClassFuncData) {
-        return v.field.hasMeta(Meta.DummyCtor)
-            || v.field.hasMeta(Meta.LateCtor)
-            || v.field.hasMeta(Meta.Native)
-            || v.field.hasMeta(Meta.NativeName)
-            || v.field.name == "new";
-    }
-
     public function filterClass(cls:ClassDef):ClassDef {
 
         if (cls.classType.isExtern || cls.classType.isAbstract || cls.classType.isInterface)
             return cls;
+
+        for (i in 0...cls.varFields.length) {
+            if (cls.varFields[i].field.hasMeta(Meta.InjectClasses)) {
+                cls.varFields[i] = ClassFieldBuilder.basedOnVar(cls.varFields[i])
+                    // .implemented()
+                    .buildVar(cls.classType);
+            } else if (cls.varFields[i].field.hasMeta(Meta.InjectEnums)) {
+
+            }
+        }
+        
+        final injectEnums = cls.varFields.filter(f -> f.field.hasMeta(Meta.InjectEnums));
 
         final allFields = cls.varFields
             .filter(f -> !f.isStatic)
@@ -70,6 +74,7 @@ class Reflector implements IClassFilter {
                 .positioned(pos)
                 .buildVar(cls.classType)
         );
+
 
         return cls;
     }

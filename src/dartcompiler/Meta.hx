@@ -23,7 +23,8 @@ enum abstract Meta(String) to String {
     // internal compiler metas
     var LateCtor = ":dart.lateCtor";
     var DummyCtor = ":dart.dummyCtor";
-    var InjectExpr = ":dart.injectExpr";
+    var InjectClasses = ":dart.injectClasses";
+    var InjectEnums = ":dart.injectEnums";
 }
 
 #end
