@@ -1,18 +1,8 @@
 package;
 
-/**
-	The Std class provides standard methods for manipulating basic types.
-**/
 @:coreApi class Std {
-	/**
-		DEPRECATED. Use `Std.isOfType(v, t)` instead.
-
-		Tells if a value `v` is of the type `t`. Returns `false` if `v` or `t` are null.
-
-		If `t` is a class or interface with `@:generic` meta, the result is `false`.
-	**/
 	@:deprecated('Std.is is deprecated. Use Std.isOfType instead.')
-	public static inline function is<T>(v:Dynamic, t:Dynamic):Bool
+	public static function is<T>(v:Dynamic, t:Dynamic):Bool
 		return untyped __dart__("({0} is T)", v, t);
 
 	/**
@@ -20,9 +10,8 @@ package;
 
 		If `t` is a class or interface with `@:generic` meta, the result is `false`.
 	**/
-	public static inline function isOfType<T>(v:Dynamic, t:Dynamic):Bool
+	public static function isOfType<T>(v:Dynamic, t:Dynamic):Bool
 		return untyped __dart__("({0} is T)", v, t);
-		// return untyped __dart__("({0}.runtimeType == {1})", v, t);
 
 	/**
 		Checks if object `value` is an instance of class or interface `c`.
@@ -112,8 +101,9 @@ package;
 		It may also end with `e` or `E` followed by optional minus or plus sign and a sequence of
 		digits (defines exponent to base 10).
 	**/
-	public static inline function parseFloat(x:String):Float
-		return untyped __dart__("double.tryParse({0})", x);
+	public static inline function parseFloat(x:String):Float {
+		return untyped __dart__("double.tryParse({0})", x) ?? Math.NaN;
+	}
 
 	/**
 		Return a random integer between 0 included and `x` excluded.

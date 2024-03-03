@@ -11,6 +11,7 @@ Implementation Progress (checked when all tests pass):
 - [ ] Rest
 - [x] Null safety
 - [x] Imports
+- [ ] Exceptions
 
 ### Stdlib
 - [x] Array [*](#1)

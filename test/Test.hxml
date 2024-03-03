@@ -1,5 +1,5 @@
 
---dce no
+# --dce no
 # --define analyzer-optimize
 
 # --each
