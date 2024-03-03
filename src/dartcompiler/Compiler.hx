@@ -114,14 +114,18 @@ class Compiler extends GenericCompiler<DartPrinter, DartPrinter, DartPrinter, Da
     }
 
     public override function compileTypedefImpl(def: DefType): Null<DartPrinter> {
-        // return switch (def.type) {
-        //     case TAnonymous(_.get().status => AClassStatics(_)|AEnumStatics(_)|AAbstractStatics(_)):
-        //         null;
-        //     default:
-        //         _printer.printTypedef(def);
-        //         _printer;
-        // }
-        return null;
+        return switch (def.type) {
+            // case TAnonymous(_.get().status => AClassStatics(_)|AEnumStatics(_)|AAbstractStatics(_)):
+                // null;
+            case TAnonymous(_.get() => at):
+                _printer.writeln('/*${at.status}*/');
+                _printer.printTypedef(def);
+                _printer;
+            default:
+                _printer.writeln('TYPEYDEF=${def.type}');
+                null;
+        }
+        // return null;
     }
 
     public function compileClassImpl(classType: ClassType, varFields: Array<ClassVarData>, funcFields: Array<ClassFuncData>): Null<DartPrinter> {

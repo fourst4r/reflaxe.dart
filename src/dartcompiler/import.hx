@@ -11,6 +11,7 @@ using reflaxe.helpers.ModuleTypeHelper;
 using reflaxe.helpers.TypeHelper;
 using reflaxe.helpers.OperatorHelper;
 using reflaxe.helpers.NullableMetaAccessHelper;
+using reflaxe.helpers.ClassFieldHelper;
 using dartcompiler.TypeTools;
 using dartcompiler.ArrayTools;
 using dartcompiler.MetaTools;

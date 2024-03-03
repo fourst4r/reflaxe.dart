@@ -4,6 +4,7 @@ package dartcompiler;
 #if (macro || dart_runtime)
 
 import reflaxe.data.*;
+import reflaxe.helpers.Context;
 import haxe.macro.Type;
 import haxe.macro.Expr;
 
@@ -113,9 +114,14 @@ class DartPrinter extends Printer {
                 write(t.qualifiedName());
                 printTypeParams(params);
             case TDynamic(t): write('dynamic/*$t*/');
+            case TType(_,_) if (type.isMultitype()):
+                write('/*theee multitype*/');
+                printType(Context.follow(type));
             case TType(_.get() => t, params):
-                write(t.qualifiedName());
-                printTypeParams(params);
+                write('/*tdef*/');
+                printType(Context.follow(type));
+                // write(t.qualifiedName());
+                // printTypeParams(params);
 
             case TAnonymous(_.get() => a):
                 // write('/*tanon*/');
@@ -182,7 +188,7 @@ class DartPrinter extends Printer {
         if (lateInit)
             write('late ');
 
-        printType(type);
+        printPNameOrType(type);
         
         write(' $name');
 
@@ -195,7 +201,8 @@ class DartPrinter extends Printer {
     }
 
     public function printFunction(funcField: ClassFuncData) {
-        final isConstructor = funcField.field.name == "new";
+        final isNamedCtor = funcField.field.hasMeta(Meta.NamedCtor);
+        final isConstructor = funcField.field.name == "new" || isNamedCtor;
         final isDummyCtor = funcField.field.hasMeta(Meta.DummyCtor);
         final isLateCtor = funcField.field.hasMeta(Meta.LateCtor);
         final ret = funcField.ret;
@@ -221,7 +228,7 @@ class DartPrinter extends Printer {
         if (isOverride)
             write('@override ');
 
-        if (funcField.isStatic)
+        if (funcField.isStatic && !isConstructor)
             write('static ');
 
         if (!isConstructor) {
@@ -248,7 +255,12 @@ class DartPrinter extends Printer {
             list(initers, m -> {
                 final e = m?.params.first();
                 if (e != null) {
-                    write(e.toString());
+                    try
+                        // is this a storedExpr?
+                        _compiler.compileExpression(Context.typeExpr(e))
+                    catch (_)
+                        // nope, fallback to primitive print
+                        write(e.toString());
                 }
             }, ', ');
         }
@@ -606,8 +618,15 @@ class DartPrinter extends Printer {
                     _compiler.compileExpression(e);
                     write('.${cf.name}');
                 }
+
+                final funcData = cf.findFuncData(c);
+                var i = 0;
+
                 write('(');
-                list(el, cx, ', ');
+                list(el, a -> {
+                    write('/*opt=${funcData.args[i].opt}*/');
+                    cx(a);
+                }, ', ');
                 write(')');
                 // write('/*we here*/');
             case TCall(e, el):
@@ -629,7 +648,16 @@ class DartPrinter extends Printer {
                     write(c.qualifiedName());
                     // printTypeParams(c.params.map(p -> p.t));
                     write('(');
-                    list(el, cx, ', ');
+
+                    final funcData = c.constructor.get().findFuncData(c);
+                    var i = 0;
+
+                    list(el, a -> {
+                        write('/*opt=${funcData.args[i].opt}*/');
+                        cx(a);
+                    }, ', ');
+
+                    // list(el, cx, ', ');
                     write(')');
                 }
 
