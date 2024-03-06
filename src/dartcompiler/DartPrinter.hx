@@ -208,7 +208,14 @@ class DartPrinter extends Printer {
         final ret = funcField.ret;
         final className = funcField.classType.qualifiedName();
         final fieldName = funcField.field.getNameOrNativeName();
-        final name = _compiler.compileVarName(isConstructor ? className : fieldName);
+        final name = _compiler.compileVarName({
+            if (isNamedCtor)
+                '$className.$fieldName'
+            else if (isConstructor)
+                className
+            else
+                fieldName;
+        });
         final args = funcField.args;
         final body = funcField.expr;
         final params = funcField.field.params;
@@ -219,7 +226,7 @@ class DartPrinter extends Printer {
         
         if (requiresNativeName)
             funcField.field.meta.add(Meta.NativeName, [macro $v{name}], funcField.field.pos);
-        
+
         if (isDummyCtor) {
             writeln('$className.$fieldName();');
             return;
@@ -486,6 +493,18 @@ class DartPrinter extends Printer {
         }
     }
 
+    function printCallArgs(funcData:ClassFuncData, el:Array<TypedExpr>) {
+        el = funcData.replacePadNullsWithDefaults(el);
+        var i = 0;
+        list(el, a -> {
+            final argName = funcData.args[i].getMetadataFirstString(Meta.Named);
+            if (argName != null)
+                write('$argName: ');
+            _compiler.compileExpression(a);
+            i++;
+        }, ', ');
+    }
+
     public function printExpr(expr: TypedExpr, topLevel: Bool) {
         final cx = _compiler.compileExpression.bind(_, topLevel);
 
@@ -650,14 +669,8 @@ class DartPrinter extends Printer {
                     write('(');
 
                     final funcData = c.constructor.get().findFuncData(c);
-                    var i = 0;
+                    printCallArgs(funcData, el);
 
-                    list(el, a -> {
-                        write('/*opt=${funcData.args[i].opt}*/');
-                        cx(a);
-                    }, ', ');
-
-                    // list(el, cx, ', ');
                     write(')');
                 }
 

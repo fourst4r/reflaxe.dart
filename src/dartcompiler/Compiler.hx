@@ -132,6 +132,9 @@ class Compiler extends GenericCompiler<DartPrinter, DartPrinter, DartPrinter, Da
         
         var cls = {classType: classType, varFields: varFields, funcFields: funcFields};
         cls = _classFilter.filterClass(cls);
+
+        if (classType.isExtern)
+            return null;
         
         _printer.printClass(cls.classType, cls.varFields, cls.funcFields);
         

@@ -26,10 +26,11 @@ class CompilerInit {
 			trackUsedTypes: true,
 			deleteOldOutput: true,
 			preventRepeatVars: true,
-			// enforceNullTyping: true,
+			enforceNullTyping: false, // false because there are some unwanted optimizations
 			convertNullCoal: false,
 			defaultOutputFilename: "main",
 			unwrapTypedefs: true,
+			ignoreExterns: false,
 		});
 	}
 

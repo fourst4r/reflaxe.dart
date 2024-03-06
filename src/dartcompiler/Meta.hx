@@ -16,9 +16,11 @@ enum abstract Meta(String) to String {
     /** Declares static function to be a named constructor. **/
     var NamedCtor = ":dart.namedCtor";
     /** Declares named function argument. **/
-    var Named = ":dart.named";
+    var Named = "dart_named";
     /** Marks a function argument type as covariant. **/
     var Covariant = ":dart.covariant";
+    /** Lazy way to get around Haxe compiler not keeping arg metas... **/
+    var ArgMeta = ":dart.argMeta";
 
     // internal compiler metas
     var LateCtor = ":dart.lateCtor";

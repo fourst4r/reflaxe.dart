@@ -23,7 +23,7 @@ class Sys {
     public static function args():Array<String>
         return @:privateAccess Array.fromList(Platform.executableArguments);
  
-    public static function getEnv(s:String):String
+    public static function getEnv(s:String):Null<String>
         return untyped Platform.environment[s];
  
     public static function putEnv(s:String, v:Null<String>):Void {
