@@ -16,7 +16,7 @@ class Reflector implements IClassFilter {
 
     public function filterClass(cls:ClassDef):ClassDef {
 
-        if (cls.classType.isExtern || cls.classType.isAbstract || cls.classType.isInterface)
+        if (cls.classType.isExtern || cls.classType.isAbstract || cls.classType.isInterface || cls.classType.isUnreflectable())
             return cls;
 
         for (i in 0...cls.varFields.length) {

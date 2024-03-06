@@ -115,8 +115,8 @@ class Compiler extends GenericCompiler<DartPrinter, DartPrinter, DartPrinter, Da
 
     public override function compileTypedefImpl(def: DefType): Null<DartPrinter> {
         return switch (def.type) {
-            // case TAnonymous(_.get().status => AClassStatics(_)|AEnumStatics(_)|AAbstractStatics(_)):
-                // null;
+            case TAnonymous(_.get().status => AClassStatics(_)|AEnumStatics(_)|AAbstractStatics(_)):
+                null;
             case TAnonymous(_.get() => at):
                 _printer.writeln('/*${at.status}*/');
                 _printer.printTypedef(def);

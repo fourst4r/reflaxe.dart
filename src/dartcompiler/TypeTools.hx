@@ -6,6 +6,11 @@ import haxe.macro.Type;
 
 class TypeTools {
 
+    public static function isUnreflectable(cls:ClassType):Bool {
+        return cls.name.endsWith("_Impl_") 
+            || cls.name.endsWith("_Fields_");
+    }
+
     public static function ref<T>(o:T) {
         return {get: () -> o, toString: Std.string.bind(o)};
     }

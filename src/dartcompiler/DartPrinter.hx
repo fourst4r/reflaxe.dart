@@ -26,10 +26,6 @@ class DartPrinter extends Printer {
         final className = classType.qualifiedName();
         final superClass = classType.superClass;
         
-        if (classType.name.endsWith("_Impl_")) {
-            write('/*${classType.meta.get()}*/');
-        }
-
         if (classType.isInterface)
             write('abstract ');
         write('class $className');
@@ -319,7 +315,6 @@ class DartPrinter extends Printer {
         }
 
         final className = abstractType.qualifiedName();
-        writeln('// meta=${abstractType.meta.get()}');
         write('class $className');
         if (abstractType.params.length > 0) {
             write('<');

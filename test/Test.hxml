@@ -67,3 +67,4 @@
 
 --main TestIdk
 --define dart-output=TestIdk.dart
+--cmd dart run --enable-asserts TestIdk.dart
