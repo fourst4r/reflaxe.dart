@@ -103,7 +103,8 @@ class LateSuper implements IClassFilter {
         if (hasSubClass) {
             // Dummy ctor
             final meta = new MetaAccessor();
-            meta.add(Meta.DummyCtor, [], pos);
+            // meta.add(Meta.DummyCtor, [], pos);
+            meta.add(Meta.NamedCtor, [], pos);
             if (hasSuperClass && !isSuperExtern)
                 meta.add(Meta.Initializer, [macro super.__hx_dummyctor()], pos);
             final dummyCtor = new ClassFuncData(cls.classType, {
