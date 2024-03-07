@@ -750,17 +750,25 @@ class DartPrinter extends Printer {
             case TSwitch(e, cases, edef):
                 printSwitch(e, cases, edef);
             case TTry(e, catches):
-                write('try {');
+                writeln('try {');
+                indent();
                 _compiler.compileExpression(e);
+                unindent();
                 writeln();
                 write('}');
                 for (c in catches) {
+                    if (!c.v.t.isDynamic()) {
+                        write(' on ');
+                        printPNameOrType(c.v.t);
+                    }
                     write(' catch (');
-                    writeln(' ${c.v.name}) {');
+                    writeln('${c.v.name}) {');
+                    indent();
                     _compiler.compileExpression(c.expr);
+                    unindent();
+                    writeln();
                     write('}');
                 }
-                writeln();
             case TReturn(e):
                 write('return');
                 if (e != null) {
@@ -881,6 +889,7 @@ class DartPrinter extends Printer {
                 _compiler.compileExpression(e2);
                 write(') $opStr 0');
             case OpAdd if (shouldCoerceToString):
+                write('/*coerced*/');
                 printSafeString(e1);
                 write(' $opStr ');
                 printSafeString(e2);
@@ -889,8 +898,10 @@ class DartPrinter extends Printer {
                 write(' $opStr ');
                 printSafeString(e2);
             default:
+                // write('/*e1.t=${e1.t}*/');
                 _compiler.compileExpression(e1);
                 write(' $opStr ');
+                // write('/*e1.t=${e2.t}*/');
                 _compiler.compileExpression(e2);
         }
         

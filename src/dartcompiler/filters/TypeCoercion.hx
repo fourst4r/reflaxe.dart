@@ -15,7 +15,7 @@ class TypeCoercion implements IExprFilter implements IClassFilter {
     **/
     public function filterClass(cls:ClassDef):ClassDef {
         for (func in cls.funcFields) {
-            if (func.ret.isFloat()) {
+            if (func.ret.isFloat() && func.expr != null) {
                 func.setExpr(coerceReturnsToDouble(func.expr));
             }
         }
