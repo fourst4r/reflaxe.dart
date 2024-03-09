@@ -40,6 +40,7 @@ class Compiler extends GenericCompiler<DartPrinter, DartPrinter, DartPrinter, Da
         super();
 
         _classFilter = new CompositeClassFilter([
+            new ObjectFieldsFixer(),
             new LateSuper(),
             new Reflector(),
             new NullSafety(),

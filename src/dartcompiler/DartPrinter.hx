@@ -25,9 +25,14 @@ class DartPrinter extends Printer {
     public function printClass(classType: ClassType, varFields: Array<ClassVarData>, funcFields: Array<ClassFuncData>) {
         final className = classType.qualifiedName();
         final superClass = classType.superClass;
-        
+
         if (classType.isInterface)
+            write('abstract interface ');
+        else if (classType.isAbstract)
             write('abstract ');
+        else if (classType.isFinal)
+            write('final ');
+
         write('class $className');
         if (classType.params.length > 0) {
             write('<');
@@ -220,6 +225,8 @@ class DartPrinter extends Printer {
         final hasOptional = args.exists(a -> a.opt);
         final requiresNativeName = name != fieldName;
         
+        writeln('/*meta=${funcField.field.meta.get()}*/');
+
         if (requiresNativeName)
             funcField.field.meta.add(Meta.NativeName, [macro $v{name}], funcField.field.pos);
 
@@ -307,32 +314,6 @@ class DartPrinter extends Printer {
             write(sep);
             fn(el[i]);
         }
-    }
-
-    public function printAbstract(abstractType:AbstractType) {
-        if (abstractType.isExtern) {
-            return;
-        }
-
-        final className = abstractType.qualifiedName();
-        write('class $className');
-        if (abstractType.params.length > 0) {
-            write('<');
-            list(abstractType.params, p -> {
-                write(p.name);
-            }, ', ');
-            write('>');
-        }
-
-        writeln(' {');
-        indent();
-        // for (field in varFields)
-        //     printField(field);
-        // for (func in funcFields)
-        //     printFunction(func);
-        
-        unindent();
-        writeln('}');
     }
 
     public function printEnum(enumType: EnumType, constructs: Array<EnumOptionData>) {

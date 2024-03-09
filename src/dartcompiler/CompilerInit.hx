@@ -104,7 +104,7 @@ class CompilerInit {
 			"set",
 			"int",
 			"double",
-			"num"
+			"num",
 		];
 	}
 }
