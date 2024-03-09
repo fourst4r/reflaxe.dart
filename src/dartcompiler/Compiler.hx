@@ -20,6 +20,7 @@ import reflaxe.compiler.TargetCodeInjection;
 import reflaxe.compiler.TypeUsageTracker;
 
 import dartcompiler.filters.*;
+import dartcompiler.filters.CompositeFilter;
 
 /**
     The class used to compile the Haxe AST into your target language's code.
@@ -33,6 +34,7 @@ class Compiler extends GenericCompiler<DartPrinter, DartPrinter, DartPrinter, Da
     var _imports:Map<String, String> = [];
     var _classFilter:CompositeClassFilter;
     var _exprFilter:CompositeExprFilter;
+    var _abstractFilter:CompositeAbstractFilter;
 
     public function new() {
         super();
@@ -48,6 +50,10 @@ class Compiler extends GenericCompiler<DartPrinter, DartPrinter, DartPrinter, Da
             new BinopPrecedence(),
             new NullSafety(),
             new TypeCoercion(),
+        ]);
+
+        _abstractFilter = new CompositeAbstractFilter([
+            new AbstractParamsApplicator(),
         ]);
     }
 
@@ -125,11 +131,14 @@ class Compiler extends GenericCompiler<DartPrinter, DartPrinter, DartPrinter, Da
                 _printer.writeln('TYPEYDEF=${def.type}');
                 null;
         }
-        // return null;
     }
 
     public function compileClassImpl(classType: ClassType, varFields: Array<ClassVarData>, funcFields: Array<ClassFuncData>): Null<DartPrinter> {
         
+        if (classType.isAbstractImpl())
+            // let compileAbstract handle that
+            return null;
+
         var cls = {classType: classType, varFields: varFields, funcFields: funcFields};
         cls = _classFilter.filterClass(cls);
 
@@ -147,26 +156,20 @@ class Compiler extends GenericCompiler<DartPrinter, DartPrinter, DartPrinter, Da
     }
 
     public override function compileAbstractImpl(abstractType: AbstractType): Null<DartPrinter> {
-        if (abstractType.isExtern && !abstractType.hasMeta(Meta.Native)) {
-            // give extern abstracts a good name, not the haxe impl nonsense
-            abstractType.meta.add(Meta.Native, [macro $v{abstractType.name}], abstractType.pos);
-        }
         if (!abstractType.hasMeta(":coreType")) {
-    	    _printer.printAbstract(abstractType);
+
+            var cls = abstractType.impl.get().toClassDef(true);
+            cls = _classFilter.filterClass(cls);
+
+            var abs = {abstractType: abstractType, classDef: cls};
+            final abs = _abstractFilter.filterAbstract(abs);
+
+            cls = abs.classDef;
+            _printer.printClass(cls.classType, cls.varFields, cls.funcFields);
         }
     	return _printer;
     }
 
-    /**
-        This is the final required function.
-        It compiles the expressions generated from Haxe.
-        
-        PLEASE NOTE: to recusively compile sub-expressions:
-            BaseCompiler.compileExpression(expr: TypedExpr): Null<String>
-            BaseCompiler.compileExpressionOrError(expr: TypedExpr): String
-        
-        https://api.haxe.org/haxe/macro/TypedExpr.html
-    **/
     public function compileExpressionImpl(expr: TypedExpr, topLevel: Bool): Null<DartPrinter> {
         
         if(options.targetCodeInjectionName != null) {

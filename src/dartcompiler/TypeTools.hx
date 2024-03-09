@@ -6,10 +6,37 @@ import haxe.macro.Type;
 
 class TypeTools {
 
-    public static function isUnreflectable(cls:ClassType):Bool {
-        return cls.name.endsWith("_Impl_") 
-            || cls.name.endsWith("_Fields_");
+    public static function toClassDef(cls:ClassType, ?allFieldsAreStatic:Bool) {
+
+        final vars = [];
+        final funcs = [];
+        
+        for (f in cls.statics.get()) {
+            if (f.isVarKind()) {
+                final varData = f.findVarData(cls, allFieldsAreStatic);
+                vars.push(varData);
+            } else {
+                final funcData = f.findFuncData(cls, allFieldsAreStatic);
+                if (funcData != null)
+                    funcs.push(funcData);
+            }
+        }
+
+        return {
+            classType: cls,
+            varFields: vars,
+            funcFields: funcs,
+        };
     }
+
+    public static function isUnreflectable(cls:ClassType):Bool
+        return isAbstractImpl(cls) || isModuleFields(cls);
+
+    public static function isModuleFields(cls:ClassType)
+        return cls.name.endsWith("_Fields_");
+
+    public static function isAbstractImpl(cls:ClassType)
+        return cls.name.endsWith("_Impl_");
 
     public static function ref<T>(o:T) {
         return {get: () -> o, toString: Std.string.bind(o)};
